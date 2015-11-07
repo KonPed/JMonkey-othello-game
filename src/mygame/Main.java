@@ -52,11 +52,13 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         app.start();
     }
     private int displacement = 10;
+    private int displacement1 =10;
     private int credit = 0;
+    private int stamina = 10000;
     private Spatial sceneModel;
     private RigidBodyControl landscape;
     private CharacterControl character, vendor;
-    private Node model, model2, collectables, vaultNode;
+    private Node model, model2, collectables, vaultNode, staminaNode;
     private ChaseCamera chaseCam;
     private boolean left,right,up,down,torch, fireon;
     private boolean away = true;
@@ -69,6 +71,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     PointLight pl;
     BitmapText hudText;
     ParticleEmitter fire;
+    Spatial teapot;
     
     @Override
     public void simpleInitApp() {
@@ -86,7 +89,6 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         setupAnimationController();
         makemines();
         makeInventory();
-        createTorch();
         createPointLight();
         makewall();
         createDoor();
@@ -95,6 +97,9 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     @Override
     public void simpleUpdate(float tpf) {
         pl.setPosition(character.getPhysicsLocation());
+        
+        stamina -= tpf;
+        Stamina();
          
          Vector3f camDir = cam.getDirection().clone().multLocal(0.3f); //speed
          Vector3f camLeft = cam.getLeft().clone().multLocal(0.3f);
@@ -226,6 +231,24 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         return bulletAppState.getPhysicsSpace();
     }
     
+    private void Stamina() {
+        staminaNode = new Node();
+        Box staminaBox = new Box(new Vector3f(0f,0f,0f),1,30,1);
+        Geometry stamGuiBox = new Geometry("Stamina Cube",staminaBox);
+        Material mat1 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        mat1.setColor("Color", ColorRGBA.Red);
+        stamGuiBox.setMaterial(mat1);
+        staminaNode.attachChild(stamGuiBox);
+              
+             stamGuiBox.setLocalScale(10);
+             stamGuiBox.setLocalTranslation(20,displacement1,0);
+             displacement1+=20;
+             //guiNode.detachChild(staminaNode);
+       
+             displacement1=10;
+             guiNode.attachChild(staminaNode);
+            }
+    
     private void createTerrain() {
         sceneModel = assetManager.loadModel("Scenes/town/main.scene");
         sceneModel.setLocalScale(1.0f);
@@ -289,12 +312,12 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     }
     
     private void createTorch() {
-        Spatial teapot = assetManager.loadModel("Models/Teapot/Teapot.obj");
+        teapot = assetManager.loadModel("Models/Teapot/Teapot.obj");
         Material mat_default = new Material( assetManager, "Common/MatDefs/Misc/ShowNormals.j3md");
         teapot.setMaterial(mat_default);
-        //teapot.setLocalTranslation(10, 0.9f, 10);
+        teapot.setLocalTranslation(-4, 3f, 1);
         model.attachChild(teapot);
-    }   
+    }  
     
     public void createFire(){
     fire = new ParticleEmitter("Emitter", ParticleMesh.Type.Triangle, 30);
@@ -376,6 +399,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     guiNode.attachChild(cubeHUD);
    // guiNode.addLight(sun2);
     rootNode.attachChild(guiNode);
+    
     }
     
     protected Geometry makeCube(String name, float x, float y, float z) {
@@ -513,7 +537,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
             character.jump();
         }else if (binding.equals("Char1") && torch == false) {
             if(character.getPhysicsLocation().distance(vendor.getPhysicsLocation()) < 10 && (Math.acos(vis2)* FastMath.RAD_TO_DEG) < 60) {
-                if(credit >= 60){
+                if(credit >= 30){
                 torch = true;
                 System.out.println("Torch purchased");
                 }else {
@@ -523,13 +547,17 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         }else if (binding.equals("fireOn")) {
             if(torch == true && fireon == false){
                 createFire();
+                createTorch();
                 rootNode.addLight(pl);
                 fireon = true;
             }
         }else if (binding.equals("fireOff")) {
+            if(fireon == true && torch == true){
             model.detachChild(fire);
+            model.detachChild(teapot);
             rootNode.removeLight(pl);
             fireon = false;
+            }
         }else if (binding.equals("rotateDoor")) {
             vaultNode.rotate(0, 0.8f, 0);
             
