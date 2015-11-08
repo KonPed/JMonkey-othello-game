@@ -58,7 +58,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     private Spatial sceneModel;
     private RigidBodyControl landscape;
     private CharacterControl character, vendor;
-    private Node model, model2, collectables, vaultNode, staminaNode;
+    private Node model, model2, collectables, vaultNode, explosives;
     private ChaseCamera chaseCam;
     private boolean left,right,up,down,torch, fireon;
     private boolean away = true;
@@ -88,6 +88,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         createVendor();
         setupAnimationController();
         makemines();
+        makeExplosiveMines();
         makeInventory();
         createPointLight();
         makewall();
@@ -232,8 +233,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     }
     
     public void stamina(){
-        //staminaNode=new Node("Stamina");
-       
+        
         Box initialBox = new Box(new Vector3f(0f,0f,0f),20,1,1);
             Geometry initGuiBox=new Geometry("Initial Cube",initialBox);
             Material mat1 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
@@ -256,7 +256,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     
     private void createTerrain() {
         sceneModel = assetManager.loadModel("Scenes/town/main.scene");
-        sceneModel.setLocalScale(1.0f);
+        sceneModel.setLocalScale(1f);
 
         CollisionShape sceneShape = CollisionShapeFactory.createMeshShape((Node) sceneModel);
         landscape = new RigidBodyControl(sceneShape, 0);
@@ -378,6 +378,39 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     rootNode.attachChild(geo);
     return geo;
   }
+    
+    public Geometry createExplosiveMine(String name, Vector3f loc) { 
+    //Dome mine = new Dome(Vector3f.ZERO, 2, 32, 1f,false);
+    Box mine = new Box(1f, 1f, 1f);
+    Geometry geo = new Geometry("Mine", mine);
+    Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+    mat.setTexture("NormalMap", assetManager.loadTexture("Textures/ColoredTex/Monkey.png"));
+    //Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+    //mat.setColor("Color",ColorRGBA.White);
+    geo.setLocalTranslation(loc);
+    geo.setMaterial(mat);
+    geo.rotate(0, 0, 0.5f);
+    //mine_phy = new RigidBodyControl(1f);
+    
+    //geo.addControl(mine_phy);
+   // bulletAppState.getPhysicsSpace().add(mine_phy);
+    rootNode.attachChild(geo);
+    return geo;
+  }
+    
+    private void makeExplosiveMines() {
+        explosives = new Node("Collectables");
+        for (int i = 0; i < 20; i++) {
+            // randomize 3D coordinates
+            Vector3f loc = new Vector3f(
+                    FastMath.nextRandomInt(-75, 215),
+                    2,
+                    FastMath.nextRandomInt(-100, 80));
+            
+            explosives.attachChild(createExplosiveMine("mine"+i,loc));
+        }
+        rootNode.attachChild(explosives);
+    }
     
     private void makemines() {
         collectables = new Node("Collectables");
