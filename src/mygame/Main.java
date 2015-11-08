@@ -114,9 +114,13 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
          rootNode.removeLight(dl);
         // System.out.println(rootNode.);
          afternoonLight();
+         camDir = cam.getDirection().clone().multLocal(0.2f); //speed
+         camLeft = cam.getLeft().clone().multLocal(0.2f);
         } else if (timer > 20 && timer <= 30) {
          rootNode.removeLight(dl);
          nightLight();
+         camDir = cam.getDirection().clone().multLocal(0.1f); //speed
+         camLeft = cam.getLeft().clone().multLocal(0.1f);
         }else if (timer < 10) {
          rootNode.removeLight(dl);
          createLight();
@@ -391,11 +395,10 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     explosion.setEndSize(0.2f);
     explosion.setGravity(0, 0, 0);
     explosion.setLowLife(1f);
-    explosion.setHighLife(10f);
+    explosion.setHighLife(3f);
     explosion.getParticleInfluencer().setVelocityVariation(0.3f);
     explosion.setLocalTranslation(closest2.getGeometry().getLocalTranslation());
     rootNode.attachChild(explosion);
-    //rootNode.attachChild(fire);
     }
     
     private void createVendor() {
