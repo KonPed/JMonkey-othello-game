@@ -99,7 +99,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         pl.setPosition(character.getPhysicsLocation());
         
         stamina -= tpf;
-        Stamina();
+        stamina();
          
          Vector3f camDir = cam.getDirection().clone().multLocal(0.3f); //speed
          Vector3f camLeft = cam.getLeft().clone().multLocal(0.3f);
@@ -231,23 +231,28 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         return bulletAppState.getPhysicsSpace();
     }
     
-    private void Stamina() {
-        staminaNode = new Node();
-        Box staminaBox = new Box(new Vector3f(0f,0f,0f),1,30,1);
-        Geometry stamGuiBox = new Geometry("Stamina Cube",staminaBox);
-        Material mat1 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        mat1.setColor("Color", ColorRGBA.Red);
-        stamGuiBox.setMaterial(mat1);
-        staminaNode.attachChild(stamGuiBox);
+    public void stamina(){
+        //staminaNode=new Node("Stamina");
+       
+        Box initialBox = new Box(new Vector3f(0f,0f,0f),20,1,1);
+            Geometry initGuiBox=new Geometry("Initial Cube",initialBox);
+            Material mat1 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+            mat1.setColor("Color", ColorRGBA.Red);
+            initGuiBox.setMaterial(mat1);
+             guiNode.attachChild(initGuiBox);
+             initGuiBox.setLocalScale(10);
+             initGuiBox.setLocalTranslation(0,10,0);
+       
+        Box staminaBox = new Box(new Vector3f(0f,0f,0f),(10000-stamina)/500,1,1);
+            Geometry stamGuiBox=new Geometry("Stamina Cube",staminaBox);
+             Material mat2 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+            mat2.setColor("Color", ColorRGBA.White);
+               stamGuiBox.setMaterial(mat2);
+               guiNode.attachChild(stamGuiBox);
               
              stamGuiBox.setLocalScale(10);
-             stamGuiBox.setLocalTranslation(20,displacement1,0);
-             displacement1+=20;
-             //guiNode.detachChild(staminaNode);
-       
-             displacement1=10;
-             guiNode.attachChild(staminaNode);
-            }
+             stamGuiBox.setLocalTranslation(0,10,0);
+     }
     
     private void createTerrain() {
         sceneModel = assetManager.loadModel("Scenes/town/main.scene");
