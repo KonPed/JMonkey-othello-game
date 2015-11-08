@@ -54,18 +54,21 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     private int displacement = 10;
     private int credit = 0;
     private int stamina = 10000;
+    private int mines;
     private Spatial sceneModel;
     private RigidBodyControl landscape;
-    private CharacterControl character, vendor;
-    private Node model, model2, collectables, vaultNode, explosives;
+    private CharacterControl character, vendor, cassio;
+    private Node model, model2, model3, collectables, vaultNode, explosives;
     private ChaseCamera chaseCam;
     private boolean left,right,up,down,torch, fireon;
     private boolean away = true;
+    private boolean awayFromCassio = true;
+    private boolean key = false;
     Vector3f walkDirection = new Vector3f();
-    private float airTime, vis2, timer;
-    private AnimControl animationControl,animationControl2 ;
-    private AnimChannel animationChannel, animationChannel2;
-    private Vector3f otoLocation, sinbadLocation, Oto2SinBad;
+    private float airTime, vis2, vis3, timer;
+    private AnimControl animationControl,animationControl2, animationControl3;
+    private AnimChannel animationChannel, animationChannel2, animationChannel3;
+    private Vector3f otoLocation, sinbadLocation, Oto2SinBad, cassioLocation, Oto2cassio;
     DirectionalLight dl;
     PointLight pl;
     BitmapText hudText;
@@ -86,13 +89,16 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         createCharacter();
         setupChaseCamera();
         createVendor();
-        setupAnimationController();
+        createCassio();
         makemines();
         makeExplosiveMines();
         makeInventory();
         createPointLight();
         makewall();
         createDoor();
+        
+        setupAnimationController();
+        
     }
 
     @Override
@@ -194,6 +200,25 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
            away = true;
         }
         
+        cassioLocation = cassio.getPhysicsLocation();
+        Oto2cassio = cassioLocation.subtract(otoLocation).multLocal(0.1f);
+        
+        Vector3f vD2 = new Vector3f();
+        vD2 = cassio.getViewDirection().mult(-1f);
+        vis3 = (Oto2cassio.normalize()).dot((vD2.normalize()));
+        
+       
+        if(character.getPhysicsLocation().distance(cassio.getPhysicsLocation())<10 && (Math.acos(vis3)* FastMath.RAD_TO_DEG) < 60 && awayFromCassio == true) {
+             awayFromCassio = false;
+            animationChannel3.setAnim("SliceVertical");
+            System.out.println("Hello im cassio!!! Please press 1 to buy bananas!");
+           
+            
+        }
+        if(character.getPhysicsLocation().distance(cassio.getPhysicsLocation()) >= 10 || (Math.acos(vis3)* FastMath.RAD_TO_DEG) > 60) {
+           awayFromCassio = true;
+        }
+        
         CollisionResults results = new CollisionResults();
           Ray ray = new Ray(character.getPhysicsLocation(), character.getViewDirection());
           collectables.collideWith(ray, results);
@@ -204,6 +229,8 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
           float distance = closest.getDistance();
             if(distance < 15) {
                 System.out.println("Mine collected");
+                mines++;
+                System.out.println(mines);
                 collectables.detachChild(closest.getGeometry());
                 
             Box guiBox = new Box(new Vector3f(0f,0f,0f),1,1,1);
@@ -246,7 +273,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
              geoGuiBox.setLocalTranslation(settings.getWidth()-23,displacement,0);
                 displacement+=30;
                 
-                credit += 10;
+                credit += 20;
                 System.out.println("credits : " + credit);
                 
                        }
@@ -355,7 +382,18 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         teapot.setMaterial(mat_default);
         teapot.setLocalTranslation(-4, 3f, 1);
         model.attachChild(teapot);
-    }  
+    }
+    
+    private void createCassio() {
+        CapsuleCollisionShape capsule = new CapsuleCollisionShape(2f, 1.6f, 1);
+        cassio = new CharacterControl(capsule, 2.75f);
+        model3 = (Node) assetManager.loadModel("Models/Sinbad/Sinbad.mesh.j3o");
+        model3.setLocalScale(0.4f);
+        model3.addControl(cassio);
+        cassio.setPhysicsLocation(new Vector3f(5.06524f, 1, -12.185619f));
+        rootNode.attachChild(model3);
+        getPhysicsSpace().add(cassio);
+    }
     
     public void createFire(){
     fire = new ParticleEmitter("Emitter", ParticleMesh.Type.Triangle, 30);
@@ -406,12 +444,8 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         vendor = new CharacterControl(capsule, 2.75f);
         model2 = (Node) assetManager.loadModel("Models/Sinbad/Sinbad.mesh.j3o");
         model2.setLocalScale(0.4f);
-        vendor.setJumpSpeed(40f);
-        vendor.setGravity(90f);
-        vendor.setFallSpeed(50f);
         model2.addControl(vendor);
         vendor.setPhysicsLocation(new Vector3f(-6.246029f, 3.001349f, 10.4667f));
-        cam.setLocation(vendor.getPhysicsLocation());
         rootNode.attachChild(model2);
         getPhysicsSpace().add(vendor);
     }
@@ -589,6 +623,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         inputManager.addMapping("fireOn", new KeyTrigger(KeyInput.KEY_2));
         inputManager.addMapping("fireOff", new KeyTrigger(KeyInput.KEY_F));
         inputManager.addMapping("rotateDoor", new KeyTrigger(KeyInput.KEY_R));
+        inputManager.addMapping("Key", new KeyTrigger(KeyInput.KEY_K));
         
         inputManager.addListener(this, "CharLeft");
         inputManager.addListener(this, "CharRight");
@@ -599,6 +634,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         inputManager.addListener(this, "fireOn");
         inputManager.addListener(this, "fireOff");
         inputManager.addListener(this, "rotateDoor");
+        inputManager.addListener(this, "Key");
     }
     
     public void onAction(String binding, boolean value, float tpf){
@@ -652,9 +688,23 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
             fireon = false;
             }
         }else if (binding.equals("rotateDoor")) {
+            if (key == true) {
             vaultNode.rotate(0, 0.8f, 0);
-            
+                System.out.println("Door Opened!!!");
+            }else {
+                System.out.println("Key is required to open the door.");
+            }
+        }else if (binding.equals("Key")) {
+          if(character.getPhysicsLocation().distance(cassio.getPhysicsLocation()) < 10 && (Math.acos(vis3)* FastMath.RAD_TO_DEG) < 60) {
+            if(mines >= 3) {
+                key = true;
+                System.out.println("Key purchased");      
+            }else {
+                System.out.println("not enough credits.");
+            }
         }
+      }
+        
     }
     
     private void setupAnimationController() {
@@ -665,6 +715,10 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         animationControl2 = model2.getControl(AnimControl.class);
         animationControl2.addListener(this);
         animationChannel2 = animationControl2.createChannel();
+        
+        animationControl3 = model3.getControl(AnimControl.class);
+        animationControl3.addListener(this);
+        animationChannel3 = animationControl3.createChannel();
     }
     
     public void onAnimChange(AnimControl control, AnimChannel channel, String animName) {
