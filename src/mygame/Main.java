@@ -52,7 +52,6 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         app.start();
     }
     private int displacement = 10;
-    private int displacement1 =10;
     private int credit = 0;
     private int stamina = 10000;
     private Spatial sceneModel;
@@ -70,8 +69,9 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     DirectionalLight dl;
     PointLight pl;
     BitmapText hudText;
-    ParticleEmitter fire;
+    ParticleEmitter fire,explosion;
     Spatial teapot;
+    CollisionResult closest2;
     
     @Override
     public void simpleInitApp() {
@@ -194,7 +194,8 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
           Ray ray = new Ray(character.getPhysicsLocation(), character.getViewDirection());
           collectables.collideWith(ray, results);
           
-                   if (results.size() > 0) {
+          
+                    if (results.size() > 0) {
           CollisionResult closest = results.getClosestCollision();
           float distance = closest.getDistance();
             if(distance < 15) {
@@ -217,7 +218,35 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
                 System.out.println("credits : " + credit);
             }
          }
+           
+          CollisionResults results2 = new CollisionResults();
+          Ray ray2 = new Ray(character.getPhysicsLocation(), character.getViewDirection());
+          explosives.collideWith(ray2, results2);
+                    if (results2.size() > 0) {
+          closest2 = results2.getClosestCollision();
+          float distance2 = closest2.getDistance();
+            if(distance2 < 15) {
+                System.out.println("Mine exploded");
+                createExplosion();
+                explosives.detachChild(closest2.getGeometry());
+                
+                Box guiBox = new Box(new Vector3f(0f,0f,0f),1,1,1);
+            Geometry geoGuiBox;
+            geoGuiBox = new Geometry("Inventory Cube",guiBox);
+             Material mat1 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+            mat1.setColor("Color",ColorRGBA.Red);
+            geoGuiBox.setMaterial(mat1);
             
+             guiNode.attachChild(geoGuiBox);
+             geoGuiBox.setLocalScale(10);
+             geoGuiBox.setLocalTranslation(settings.getWidth()-23,displacement,0);
+                displacement+=30;
+                
+                credit += 10;
+                System.out.println("credits : " + credit);
+                
+                       }
+                    }
             
        
     }
@@ -343,6 +372,29 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     fire.setHighLife(3f);
     fire.getParticleInfluencer().setVelocityVariation(0.3f);
     model.attachChild(fire);
+    //rootNode.attachChild(fire);
+    }
+    
+    public void createExplosion(){
+    explosion = new ParticleEmitter("Emitter", ParticleMesh.Type.Triangle, 30);
+    Material mat_red = new Material(assetManager, 
+            "Common/MatDefs/Misc/Particle.j3md");
+    mat_red.setTexture("Texture", assetManager.loadTexture(
+            "Effects/Explosion/flame.png"));
+    explosion.setMaterial(mat_red);
+    explosion.setImagesX(2); 
+    explosion.setImagesY(2); // 2x2 texture animation
+    explosion.setEndColor(  new ColorRGBA(1f, 0f, 0f, 1f));   // red
+    explosion.setStartColor(new ColorRGBA(1f, 1f, 0f, 0.5f)); // yellow
+    explosion.getParticleInfluencer().setInitialVelocity(new Vector3f(0, 2, 0));
+    explosion.setStartSize(0.5f);
+    explosion.setEndSize(0.2f);
+    explosion.setGravity(0, 0, 0);
+    explosion.setLowLife(1f);
+    explosion.setHighLife(10f);
+    explosion.getParticleInfluencer().setVelocityVariation(0.3f);
+    explosion.setLocalTranslation(closest2.getGeometry().getLocalTranslation());
+    rootNode.attachChild(explosion);
     //rootNode.attachChild(fire);
     }
     
