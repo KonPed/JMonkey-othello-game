@@ -9,6 +9,7 @@ import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.PhysicsSpace;
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
 import com.jme3.bullet.collision.shapes.CollisionShape;
+import com.jme3.bullet.collision.shapes.SphereCollisionShape;
 import com.jme3.bullet.control.CharacterControl;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.bullet.util.CollisionShapeFactory;
@@ -21,6 +22,8 @@ import com.jme3.input.ChaseCamera;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
+import com.jme3.input.controls.MouseAxisTrigger;
+import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.PointLight;
 import com.jme3.material.Material;
@@ -29,6 +32,7 @@ import com.jme3.math.FastMath;
 import com.jme3.math.Ray;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
+import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
@@ -36,6 +40,7 @@ import com.jme3.scene.control.BillboardControl;
 import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Dome;
 import com.jme3.scene.shape.Quad;
+import com.jme3.scene.shape.Sphere;
 import com.jme3.texture.Texture;
 import com.jme3.util.SkyFactory;
 
@@ -140,7 +145,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
 //        guiNode.attachChild(hudText);
         
          //System.out.println(character.getPhysicsLocation());
-
+         //System.out.println(cam.getDirection());
         camDir.y = 0;
         camLeft.y = 0;
         walkDirection.set(0, 0, 0);
@@ -624,6 +629,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         inputManager.addMapping("fireOff", new KeyTrigger(KeyInput.KEY_F));
         inputManager.addMapping("rotateDoor", new KeyTrigger(KeyInput.KEY_R));
         inputManager.addMapping("Key", new KeyTrigger(KeyInput.KEY_K));
+        inputManager.addMapping("Shoot", new KeyTrigger(KeyInput.KEY_RETURN));
         
         inputManager.addListener(this, "CharLeft");
         inputManager.addListener(this, "CharRight");
@@ -635,6 +641,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         inputManager.addListener(this, "fireOff");
         inputManager.addListener(this, "rotateDoor");
         inputManager.addListener(this, "Key");
+        inputManager.addListener(this, "Shoot");
     }
     
     public void onAction(String binding, boolean value, float tpf){
@@ -664,7 +671,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
             }
         } else if (binding.equals("CharSpace")) {
             character.jump();
-        }else if (binding.equals("Char1") && torch == false) {
+        }else if (binding.equals("Char1") && torch == false && !value == true) {
             if(character.getPhysicsLocation().distance(vendor.getPhysicsLocation()) < 10 && (Math.acos(vis2)* FastMath.RAD_TO_DEG) < 60) {
                 if(credit >= 30){
                 torch = true;
@@ -686,15 +693,16 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
             model.detachChild(teapot);
             rootNode.removeLight(pl);
             fireon = false;
+            torch = false;
             }
-        }else if (binding.equals("rotateDoor")) {
+        }else if (binding.equals("rotateDoor") && !value == true) {
             if (key == true) {
-            vaultNode.rotate(0, 0.8f, 0);
+            vaultNode.rotate(0, 1.6f, 0);
                 System.out.println("Door Opened!!!");
             }else {
                 System.out.println("Key is required to open the door.");
             }
-        }else if (binding.equals("Key")) {
+        }else if (binding.equals("Key") && !value == true) {
           if(character.getPhysicsLocation().distance(cassio.getPhysicsLocation()) < 10 && (Math.acos(vis3)* FastMath.RAD_TO_DEG) < 60) {
             if(mines >= 3) {
                 key = true;
@@ -703,8 +711,27 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
                 System.out.println("not enough credits.");
             }
         }
+      }else if (binding.equals("Shoot") && !value == true) {
+                
+                Sphere bullet = new Sphere(40,40,1f);
+                Geometry bulletg = new Geometry("bullet", bullet);
+                Material matBullet = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+                matBullet.setColor("Color",ColorRGBA.Yellow);
+                bulletg.setMaterial(matBullet);
+                bulletg.setShadowMode(RenderQueue.ShadowMode.CastAndReceive);
+                bulletg.setLocalTranslation(character.getPhysicsLocation());
+                
+               SphereCollisionShape bulletCollisionShape = new SphereCollisionShape(1f);
+               RigidBodyControl bulletNode = new RigidBodyControl(bulletCollisionShape, 1);
+               
+               bulletNode.setLinearVelocity(character.getViewDirection().mult(15));
+               bulletg.addControl(bulletNode);
+               bulletAppState.getPhysicsSpace().add(bulletNode);
+               rootNode.attachChild(bulletg);
+               getPhysicsSpace().add(bulletNode);
       }
         
+    
     }
     
     private void setupAnimationController() {
