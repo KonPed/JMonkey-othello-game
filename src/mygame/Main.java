@@ -13,6 +13,9 @@ import com.jme3.bullet.collision.shapes.SphereCollisionShape;
 import com.jme3.bullet.control.CharacterControl;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.bullet.util.CollisionShapeFactory;
+import com.jme3.cinematic.MotionPath;
+import com.jme3.cinematic.MotionPathListener;
+import com.jme3.cinematic.events.MotionEvent;
 import com.jme3.collision.CollisionResult;
 import com.jme3.collision.CollisionResults;
 import com.jme3.effect.ParticleEmitter;
@@ -29,6 +32,7 @@ import com.jme3.light.PointLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
+import com.jme3.math.Quaternion;
 import com.jme3.math.Ray;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
@@ -67,21 +71,22 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     private Node model, model2, model3,model4, collectables, vaultNode, explosives;
     private ChaseCamera chaseCam;
     private boolean left,right,up,down, fireon;
-    private boolean key = false;
-    private boolean torch = false;
-    private boolean away = true;
-    private boolean awayFromCassio = true;;
+    private boolean key, torch, pursuit = false;
+    private boolean awayFromCassio, away  = true;
     Vector3f walkDirection = new Vector3f();
-    private float airTime, vis2, vis3, timer;
+    private float airTime, vis2, vis3, vis4, timer;
     private AnimControl animationControl,animationControl2, animationControl3, animationControl4;
     private AnimChannel animationChannel, animationChannel2, animationChannel3, animationChannel4;
-    private Vector3f otoLocation, sinbadLocation, Oto2SinBad, cassioLocation, Oto2cassio;
+    private Vector3f otoLocation, sinbadLocation, Oto2SinBad, cassioLocation, monkeyLocation, Oto2cassio, Oto2monkey, walkMonkey;
     DirectionalLight dl;
     PointLight pl;
     BitmapText hudText;
     ParticleEmitter fire,explosion;
     Spatial teapot;
     CollisionResult closest2;
+    private MotionPath path;
+    private MotionEvent motionControl;
+    float PROXIMITY = 4.0f;
     
     @Override
     public void simpleInitApp() {
@@ -103,6 +108,8 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         createPointLight();
         makewall();
         createDoor();
+        setupMotionPath();
+        motionControl.play();
         
         setupAnimationController();
         
@@ -117,8 +124,8 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         stamina -= tpf;
         stamina();
          
-         Vector3f camDir = cam.getDirection().clone().multLocal(0.3f); //speed
-         Vector3f camLeft = cam.getLeft().clone().multLocal(0.3f);
+         Vector3f camDir = cam.getDirection().clone().multLocal(0.5f); //speed
+         Vector3f camLeft = cam.getLeft().clone().multLocal(0.5f);
         
         timer += tpf;
         if (timer > 40) {
@@ -129,13 +136,13 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
          rootNode.removeLight(dl);
         // System.out.println(rootNode.);
          afternoonLight();
-         camDir = cam.getDirection().clone().multLocal(0.2f); //speed
-         camLeft = cam.getLeft().clone().multLocal(0.2f);
+         //camDir = cam.getDirection().clone().multLocal(0.2f); //speed
+         //camLeft = cam.getLeft().clone().multLocal(0.2f);
         } else if (timer > 20 && timer <= 30) {
          rootNode.removeLight(dl);
          nightLight();
-         camDir = cam.getDirection().clone().multLocal(0.1f); //speed
-         camLeft = cam.getLeft().clone().multLocal(0.1f);
+         //camDir = cam.getDirection().clone().multLocal(0.1f); //speed
+         //camLeft = cam.getLeft().clone().multLocal(0.1f);
         }else if (timer < 10) {
          rootNode.removeLight(dl);
          createLight();
@@ -215,7 +222,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         vis3 = (Oto2cassio.normalize()).dot((vD2.normalize()));
         
        
-        if(character.getPhysicsLocation().distance(cassio.getPhysicsLocation())<10 && (Math.acos(vis3)* FastMath.RAD_TO_DEG) < 60 && awayFromCassio == true) {
+        if(character.getPhysicsLocation().distance(cassio.getPhysicsLocation()) < 10 && (Math.acos(vis3)* FastMath.RAD_TO_DEG) < 60 && awayFromCassio == true) {
              awayFromCassio = false;
             animationChannel3.setAnim("SliceVertical");
             System.out.println("Hello im cassio!!! Please press 1 to buy bananas!");
@@ -225,6 +232,40 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         if(character.getPhysicsLocation().distance(cassio.getPhysicsLocation()) >= 10 || (Math.acos(vis3)* FastMath.RAD_TO_DEG) > 60) {
            awayFromCassio = true;
         }
+        
+        monkeyLocation = monkey.getPhysicsLocation();
+        Oto2monkey = monkeyLocation.subtract(otoLocation).multLocal(0.1f);
+        
+        Vector3f vD3 = new Vector3f();
+        vD3 = monkey.getViewDirection();
+        vis4 = (Oto2monkey.normalize()).dot((vD3.normalize()));
+        
+       
+        if(character.getPhysicsLocation().distance(monkey.getPhysicsLocation()) < 20 && (Math.acos(vis4)* FastMath.RAD_TO_DEG) < 80) {
+            pursuit = true;
+            animationChannel4.setAnim("Walk");
+            System.out.println("Haha i got you!!!");
+            motionControl.stop();
+            
+            if (pursuit) {
+            animationChannel4.setAnim("Walk");
+            monkeyLocation = monkey.getPhysicsLocation();
+            otoLocation = character.getPhysicsLocation();
+            monkey.setViewDirection(otoLocation); //to use with physic based characters
+
+            if (monkeyLocation.distance(otoLocation) < PROXIMITY) {
+                walkMonkey = new Vector3f(0f, 0f, 0f);
+                pursuit = false;
+                animationChannel4.setAnim("Idle");
+            } else {
+//                animationChannelNPC3.setAnim("Walk");
+                walkMonkey = otoLocation.subtract(monkeyLocation).multLocal(0.01f);
+                monkey.setViewDirection(walkMonkey.mult(-0.1f));
+              }
+            }
+            
+            monkey.setWalkDirection(walkMonkey);
+      }
         
         CollisionResults results = new CollisionResults();
           Ray ray = new Ray(character.getPhysicsLocation(), character.getViewDirection());
@@ -461,9 +502,9 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         CapsuleCollisionShape capsule = new CapsuleCollisionShape(2f, 1.6f, 1);
         monkey = new CharacterControl(capsule, 2.75f);
         model4 = (Node) assetManager.loadModel("Models/monkeyExport/Jaime.j3o");
-        model4.setLocalScale(2f);
+        model4.setLocalScale(2.55f);
         model4.addControl(monkey);
-        monkey.setPhysicsLocation(new Vector3f(16.246029f, 3.001349f, 10.4667f));
+        monkey.setPhysicsLocation(new Vector3f(16.246029f, 2.001349f, 10.4667f));
         rootNode.attachChild(model4);
         getPhysicsSpace().add(monkey);
     }
@@ -818,5 +859,45 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
             channel.setLoopMode(LoopMode.DontLoop);
             channel.setSpeed(1f);
         }
+    }
+    
+    private void setupMotionPath() {
+        path = new MotionPath();
+        path.addWayPoint(new Vector3f(FastMath.nextRandomInt(-70,200), 4,FastMath.nextRandomInt(-100,75)));
+        path.addWayPoint(new Vector3f(FastMath.nextRandomInt(-70,200), 4,FastMath.nextRandomInt(-100,75)));
+        path.addWayPoint(new Vector3f(FastMath.nextRandomInt(-70,200), 4,FastMath.nextRandomInt(-100,75)));
+        path.addWayPoint(new Vector3f(FastMath.nextRandomInt(-70,200), 4,FastMath.nextRandomInt(-100,75)));
+        path.addWayPoint(new Vector3f(FastMath.nextRandomInt(-70,200), 4,FastMath.nextRandomInt(-100,75)));
+        path.addWayPoint(new Vector3f(FastMath.nextRandomInt(-70,200), 4,FastMath.nextRandomInt(-100,75)));
+        path.enableDebugShape(assetManager, rootNode);
+
+        motionControl = new MotionEvent(model4, path);
+        motionControl.setDirectionType(MotionEvent.Direction.Path);
+        motionControl.setRotation(new Quaternion().fromAngleNormalAxis(FastMath.HALF_PI, Vector3f.UNIT_Y));
+
+        motionControl.setInitialDuration(30f);
+        motionControl.setSpeed(0.6f);
+
+        guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
+        final BitmapText wayPointsText = new BitmapText(guiFont, false);
+        wayPointsText.setSize(guiFont.getCharSet().getRenderedSize());
+
+        guiNode.attachChild(wayPointsText);
+
+        path.addListener(new MotionPathListener() {
+            final BitmapText wayPointsText = new BitmapText(guiFont, false);
+
+            public void onWayPointReach(MotionEvent control, int wayPointIndex) {
+                animationChannel4.setAnim("Walk");
+                if (path.getNbWayPoints() == wayPointIndex + 1) {
+                    wayPointsText.setText(control.getSpatial().getName() + " Finish!!! ");
+                    animationChannel4.setAnim("Idle");
+                } else {
+                    wayPointsText.setText(control.getSpatial().getName() + " Reached way-point " + wayPointIndex);
+                    System.out.println("Way point  " + wayPointIndex + "reached,  object moving " + control.getSpatial().getName());
+                }
+                wayPointsText.setLocalTranslation((cam.getWidth() - wayPointsText.getLineWidth()) / 2, cam.getHeight(), 0);
+            }
+        });
     }
 }
