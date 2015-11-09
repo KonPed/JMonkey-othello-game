@@ -64,7 +64,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     private int credit = 0;
     private int stamina = 10000;
     private int cannonballs, bananas = 0;
-    private int mines;
+    private int mines, explosiveMines;
     private Spatial sceneModel;
     private RigidBodyControl landscape;
     private CharacterControl character, vendor, cassio, monkey;
@@ -83,7 +83,8 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     BitmapText hudText;
     ParticleEmitter fire,explosion;
     Spatial teapot;
-    CollisionResult closest2;
+    CollisionResult closest2, closest;
+    CollisionResults results, results2;
     private MotionPath path;
     private MotionEvent motionControl;
     float PROXIMITY = 4.0f;
@@ -241,12 +242,12 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         vis4 = (Oto2monkey.normalize()).dot((vD3.normalize()));
         
        
-        if(character.getPhysicsLocation().distance(monkey.getPhysicsLocation()) < 100 && (Math.acos(vis4)* FastMath.RAD_TO_DEG) < 120 && awayFromMonkey == true) {
-//            awayFromMonkey = false;
+        if(character.getPhysicsLocation().distance(monkey.getPhysicsLocation()) < 100 && (Math.acos(vis4)* FastMath.RAD_TO_DEG) < 120 && awayFromMonkey == true) { 
+            //awayFromMonkey = false;
             monkeyOnMe = true;
             pursuit = true;
             animationChannel4.setAnim("Walk");
-            System.out.println("Haha i got you!!!");
+            //System.out.println("Haha i got you!!!");
             motionControl.stop();
             
             if (pursuit) {
@@ -272,13 +273,13 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
             monkey.setWalkDirection(walkMonkey);
       }
         
-        CollisionResults results = new CollisionResults();
+          results = new CollisionResults();
           Ray ray = new Ray(character.getPhysicsLocation(), character.getViewDirection());
           collectables.collideWith(ray, results);
           
           
                     if (results.size() > 0) {
-          CollisionResult closest = results.getClosestCollision();
+          closest = results.getClosestCollision();
           float distance = closest.getDistance();
             if(distance < 15) {
                 System.out.println("Mine collected");
@@ -303,12 +304,15 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
             }
          }
            
-          CollisionResults results2 = new CollisionResults();
+          results2 = new CollisionResults();
           Ray ray2 = new Ray(character.getPhysicsLocation(), character.getViewDirection());
           explosives.collideWith(ray2, results2);
                     if (results2.size() > 0) {
           closest2 = results2.getClosestCollision();
           float distance2 = closest2.getDistance();
+            if(distance2 <= 150 && distance2 >= 15){
+                System.out.println("target on sight.");
+                  }
             if(distance2 < 15) {
                 System.out.println("Mine exploded");
                 createExplosion();
@@ -334,7 +338,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
             
                     if(MonEating == true) {
                         eatingTimer += tpf;
-                        System.out.println(eatingTimer);
+                        //System.out.println(eatingTimer);
                         if(eatingTimer > 10) {
                             MonEating = false;
                         }
@@ -799,23 +803,85 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
       }
        
        if (binding.equals("Shoot") && !value == true) {
+           if(cannonballs > 0) {
+              //  shoot=true;
+                if (results2.size() > 0) {      
+          closest2 = results2.getClosestCollision();
+          float dist1 = closest2.getDistance();
+          
+
+          if(dist1<150 && dist1>10){
+                System.out.println("Mine destroyed");
+                createExplosion();
+                explosives.detachChild(closest2.getGeometry());
                 
-                Sphere bullet = new Sphere(40,40,1f);
-                Geometry bulletg = new Geometry("bullet", bullet);
-                Material matBullet = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-                matBullet.setColor("Color",ColorRGBA.Yellow);
-                bulletg.setMaterial(matBullet);
-                bulletg.setShadowMode(RenderQueue.ShadowMode.CastAndReceive);
-                bulletg.setLocalTranslation(character.getPhysicsLocation());
+            Box guiBoxRed = new Box(new Vector3f(0f,0f,0f),1,1,1);
+            Geometry geoGuiBoxRed=new Geometry("Inventory Cube",guiBoxRed);
+            Material matRed = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+            matRed.setColor("Color", ColorRGBA.Red);
+            geoGuiBoxRed.setMaterial(matRed);
+
+             guiNode.attachChild(geoGuiBoxRed);
+             geoGuiBoxRed.setLocalScale(10);
+             geoGuiBoxRed.setLocalTranslation(settings.getWidth()-40,displacement,0);
+             displacement+=30;
+             if (displacement>=settings.getHeight()){
+                 displacement=10;
+                 //column=40;
+             }
+             
+             credit+=10;
+             explosiveMines++;
+             //stamina-=1000;
+             System.out.println("Credits: "+credit);
+          }
+
+          }
                 
-               SphereCollisionShape bulletCollisionShape = new SphereCollisionShape(1f);
-               RigidBodyControl bulletNode = new RigidBodyControl(bulletCollisionShape, 1);
                
-               bulletNode.setLinearVelocity(character.getViewDirection().mult(15));
-               bulletg.addControl(bulletNode);
-               bulletAppState.getPhysicsSpace().add(bulletNode);
-               rootNode.attachChild(bulletg);
-               getPhysicsSpace().add(bulletNode);
+          
+       
+             
+            
+            /*     Sphere bullet=new Sphere(32,32,0.2f,true,false);
+             Geometry bulletg = new Geometry("bullet", bullet);
+             Material matBullet = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+                bulletg.setMaterial(matBullet);
+               // bulletg.setShadowMode(RenderQueue.ShadowMode.CastAndReceive);
+                bulletg.setLocalTranslation(character.getPhysicsLocation().add(.5f,0,0));
+               // RigidBodyControl bulletNode = new BombControl(assetManager, bulletCollisionShape, 1);
+                SphereCollisionShape bulletCollisionShape = new SphereCollisionShape(0.75f);
+                RigidBodyControl bulletNode = new RigidBodyControl(bulletCollisionShape, 1);
+                bulletNode.setLinearVelocity(character.getViewDirection().mult(25));
+                bulletNode.setPhysicsLocation(character.getPhysicsLocation().add(5,5,5));
+                
+                bulletg.addControl(bulletNode);
+                rootNode.attachChild(bulletg);
+                getPhysicsSpace().add(bulletNode);
+                cannonballs--;*/
+                
+            }
+           
+               
+               
+           
+                
+//                Sphere bullet = new Sphere(40,40,1f);
+//                Geometry bulletg = new Geometry("bullet", bullet);
+//                Material matBullet = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+//                matBullet.setColor("Color",ColorRGBA.Yellow);
+//                bulletg.setMaterial(matBullet);
+//                bulletg.setShadowMode(RenderQueue.ShadowMode.CastAndReceive);
+//                bulletg.setLocalTranslation(character.getPhysicsLocation());
+//                
+//               SphereCollisionShape bulletCollisionShape = new SphereCollisionShape(1f);
+//               RigidBodyControl bulletNode = new RigidBodyControl(bulletCollisionShape, 1);
+//               
+//               bulletNode.setLinearVelocity(character.getViewDirection().mult(15));
+//               bulletg.addControl(bulletNode);
+//               bulletAppState.getPhysicsSpace().add(bulletNode);
+//               rootNode.attachChild(bulletg);
+//               getPhysicsSpace().add(bulletNode);
       
       }
         
