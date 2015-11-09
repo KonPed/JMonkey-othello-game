@@ -63,7 +63,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     private int displacement = 10;
     private int credit = 0;
     private int stamina = 10000;
-    private int cannonballs = 0;
+    private int cannonballs, bananas = 0;
     private int mines;
     private Spatial sceneModel;
     private RigidBodyControl landscape;
@@ -71,10 +71,10 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     private Node model, model2, model3,model4, collectables, vaultNode, explosives;
     private ChaseCamera chaseCam;
     private boolean left,right,up,down, fireon;
-    private boolean key, torch, pursuit = false;
-    private boolean awayFromCassio, away  = true;
+    private boolean key, torch, pursuit, monkeyOnMe, MonEating = false;
+    private boolean awayFromCassio, away, awayFromMonkey = true;
     Vector3f walkDirection = new Vector3f();
-    private float airTime, vis2, vis3, vis4, timer;
+    private float airTime, vis2, vis3, vis4, timer, eatingTimer;
     private AnimControl animationControl,animationControl2, animationControl3, animationControl4;
     private AnimChannel animationChannel, animationChannel2, animationChannel3, animationChannel4;
     private Vector3f otoLocation, sinbadLocation, Oto2SinBad, cassioLocation, monkeyLocation, Oto2cassio, Oto2monkey, walkMonkey;
@@ -241,7 +241,9 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         vis4 = (Oto2monkey.normalize()).dot((vD3.normalize()));
         
        
-        if(character.getPhysicsLocation().distance(monkey.getPhysicsLocation()) < 20 && (Math.acos(vis4)* FastMath.RAD_TO_DEG) < 80) {
+        if(character.getPhysicsLocation().distance(monkey.getPhysicsLocation()) < 100 && (Math.acos(vis4)* FastMath.RAD_TO_DEG) < 120 && awayFromMonkey == true) {
+//            awayFromMonkey = false;
+            monkeyOnMe = true;
             pursuit = true;
             animationChannel4.setAnim("Walk");
             System.out.println("Haha i got you!!!");
@@ -249,18 +251,21 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
             
             if (pursuit) {
             animationChannel4.setAnim("Walk");
-            monkeyLocation = monkey.getPhysicsLocation();
-            otoLocation = character.getPhysicsLocation();
-            monkey.setViewDirection(otoLocation); //to use with physic based characters
+//            monkeyLocation = monkey.getPhysicsLocation();
+//            otoLocation = character.getPhysicsLocation();
+//            monkey.setViewDirection(otoLocation); //to use with physic based characters
 
             if (monkeyLocation.distance(otoLocation) < PROXIMITY) {
+                if(MonEating ==  false) {
+                    stamina -= 20;
+                    System.out.println("hit!");
+                }
                 walkMonkey = new Vector3f(0f, 0f, 0f);
                 pursuit = false;
                 animationChannel4.setAnim("Idle");
             } else {
-//                animationChannelNPC3.setAnim("Walk");
                 walkMonkey = otoLocation.subtract(monkeyLocation).multLocal(0.01f);
-                monkey.setViewDirection(walkMonkey.mult(-0.1f));
+                monkey.setViewDirection(walkMonkey.mult(-1f));
               }
             }
             
@@ -327,6 +332,13 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
                        }
                     }
             
+                    if(MonEating == true) {
+                        eatingTimer += tpf;
+                        System.out.println(eatingTimer);
+                        if(eatingTimer > 10) {
+                            MonEating = false;
+                        }
+                    }
        
     }
 
@@ -499,12 +511,12 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     }
     
     private void createMonkey() {
-        CapsuleCollisionShape capsule = new CapsuleCollisionShape(2f, 1.6f, 1);
+        CapsuleCollisionShape capsule = new CapsuleCollisionShape(1f, 1.6f, 1);
         monkey = new CharacterControl(capsule, 2.75f);
         model4 = (Node) assetManager.loadModel("Models/monkeyExport/Jaime.j3o");
         model4.setLocalScale(2.55f);
         model4.addControl(monkey);
-        monkey.setPhysicsLocation(new Vector3f(16.246029f, 2.001349f, 10.4667f));
+        monkey.setPhysicsLocation(new Vector3f(16.246029f, 1.01349f, 10.4667f));
         rootNode.attachChild(model4);
         getPhysicsSpace().add(monkey);
     }
@@ -685,6 +697,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         inputManager.addMapping("Key", new KeyTrigger(KeyInput.KEY_K));
         inputManager.addMapping("CharB", new KeyTrigger(KeyInput.KEY_B));
         inputManager.addMapping("Shoot", new KeyTrigger(KeyInput.KEY_RETURN));
+        inputManager.addMapping("bananas", new KeyTrigger(KeyInput.KEY_L));
         
         inputManager.addListener(this, "CharLeft");
         inputManager.addListener(this, "CharRight");
@@ -698,6 +711,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         inputManager.addListener(this, "Key");
         inputManager.addListener(this, "Shoot");
         inputManager.addListener(this, "CharB");
+        inputManager.addListener(this, "bananas");
     }
     
     public void onAction(String binding, boolean value, float tpf){
@@ -809,6 +823,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
                  if(character.getPhysicsLocation().distance(cassio.getPhysicsLocation()) < 10 && (Math.acos(vis3)* FastMath.RAD_TO_DEG) < 60) {
                      if(credit >= 10){
                      System.out.println("you bought 10 bananas");
+                     bananas += 10;
                      credit -= 10;
                          System.out.println(credit);
                      }else {
@@ -827,6 +842,26 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
                         System.out.println("Sorry! you don't have enough credits.");
                     }
                 }
+                
+            }
+            
+            if(binding.equals("bananas") && !value == true) {
+                if(bananas > 0 && monkeyOnMe == true) {
+                    bananas--;
+                    MonEating = true;
+                }else {
+                    System.out.println("Monkey needs bananas and you dont have any.");
+                }
+//                if(character.getPhysicsLocation().distance(cassio.getPhysicsLocation()) < 10 && (Math.acos(vis3)* FastMath.RAD_TO_DEG) < 60) {
+//                    if(credit >= 10){
+//                        System.out.println("you bought 10 cannoballs");
+//                        credit -= 10;
+//                        cannonballs += 10;
+//                        System.out.println(credit);
+//                    }else {
+//                        System.out.println("Sorry! you don't have enough credits.");
+//                    }
+//                }
                 
             }
          }
