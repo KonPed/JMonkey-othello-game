@@ -62,11 +62,11 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     }
     private int displacement = 10;
     private int credit = 0;
-    private int stamina = 10000;
+    private int stamina = 5000;
     private int cannonballs, bananas = 0;
     private int mines, explosiveMines;
-    private Spatial sceneModel;
-    private RigidBodyControl landscape;
+    private Spatial sceneModel, sceneModel2, teapot;
+    private RigidBodyControl landscape, landscape2;
     private CharacterControl character, vendor, cassio, monkey;
     private Node model, model2, model3,model4, collectables, vaultNode, explosives;
     private ChaseCamera chaseCam;
@@ -80,9 +80,8 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     private Vector3f otoLocation, sinbadLocation, Oto2SinBad, cassioLocation, monkeyLocation, Oto2cassio, Oto2monkey, walkMonkey;
     DirectionalLight dl;
     PointLight pl;
-    BitmapText hudText;
+    BitmapText hudText, hudText2, hudText3, hudText4;
     ParticleEmitter fire,explosion;
-    Spatial teapot;
     CollisionResult closest2, closest;
     CollisionResults results, results2;
     private MotionPath path;
@@ -94,8 +93,40 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
        bulletAppState = new BulletAppState();
        stateManager.attach(bulletAppState);
        
+            hudText = new BitmapText(guiFont, false);        
+            hudText.setSize(guiFont.getCharSet().getRenderedSize());      // font size
+            hudText.setColor(new ColorRGBA(0.5f, 0.3f, 0f, 0.5f));                             // font color
+        //    String text1=hudText.getText();
+       //     String text2[]=text1.split(":");
+            
+//            hudText.setText("STAMINA: "+ stamina);             // the text
+            hudText.setLocalTranslation(0, settings.getHeight(), 0); // position
+            guiNode.attachChild(hudText);
+            
+            hudText2 = new BitmapText(guiFont, false);
+            hudText2.setSize(guiFont.getCharSet().getRenderedSize());
+            hudText2.setColor(ColorRGBA.Yellow);
+            
+            hudText2.setLocalTranslation(300, hudText2.getLineHeight(), 0);
+            guiNode.attachChild(hudText2);
+            
+            hudText3 = new BitmapText(guiFont, false);
+            hudText3.setSize(guiFont.getCharSet().getRenderedSize());
+            hudText3.setColor(ColorRGBA.Yellow);
+            
+            hudText3.setLocalTranslation(300, hudText3.getLineHeight(), 0);
+            guiNode.attachChild(hudText3);
+            
+            hudText4 = new BitmapText(guiFont, false);
+            hudText4.setSize(guiFont.getCharSet().getRenderedSize());
+            hudText4.setColor(ColorRGBA.Yellow);
+            
+            hudText4.setLocalTranslation(300, hudText4.getLineHeight(), 0);
+            guiNode.attachChild(hudText4);
+       
         setupKeys();
         createTerrain();
+        createTerrain2();
         createSky();
         createLight();
         createCharacter();
@@ -109,8 +140,8 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         createPointLight();
         makewall();
         createDoor();
-        setupMotionPath();
-        motionControl.play();
+        //setupMotionPath();
+        //motionControl.play();
         
         setupAnimationController();
         
@@ -120,7 +151,21 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     public void simpleUpdate(float tpf) {
         //System.out.println(character.getPhysicsLocation());
         //System.out.println(cam.getDirection());
+        
+//             
+//               hudText = new BitmapText(guiFont, false);        
+//            hudText.setSize(guiFont.getCharSet().getRenderedSize());      // font size
+//            hudText.setColor(new ColorRGBA(0.5f, 0.3f, 0f, 0.5f));                             // font color
+//        //    String text1=hudText.getText();
+//       //     String text2[]=text1.split(":");
+//            
+//            hudText.setText("STAMINA: "+ stamina);             // the text
+//            hudText.setLocalTranslation(0, settings.getHeight(), 0); // position
+//            guiNode.attachChild(hudText);
+        
         pl.setPosition(character.getPhysicsLocation());
+        
+        hudText.setText("STAMINA: "+ stamina);
         
         stamina -= tpf;
         stamina();
@@ -207,12 +252,12 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         if(character.getPhysicsLocation().distance(vendor.getPhysicsLocation())<10 && (Math.acos(vis2)* FastMath.RAD_TO_DEG) < 60 && away == true) {
              away = false;
             animationChannel2.setAnim("SliceVertical");
-            System.out.println("Hello Stranger!!! Please press 1 to buy a torch!");
-           
-            
-        }
+            hudText2.setText("Hello Stranger!!! Please press 1 to buy a torch!");
+            //System.out.println("Hello Stranger!!! Please press 1 to buy a torch!");
+           }
         if(character.getPhysicsLocation().distance(vendor.getPhysicsLocation()) >= 10 || (Math.acos(vis2)* FastMath.RAD_TO_DEG) > 60) {
            away = true;
+           hudText2.setText("");
         }
         
         cassioLocation = cassio.getPhysicsLocation();
@@ -226,12 +271,13 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         if(character.getPhysicsLocation().distance(cassio.getPhysicsLocation()) < 10 && (Math.acos(vis3)* FastMath.RAD_TO_DEG) < 60 && awayFromCassio == true) {
              awayFromCassio = false;
             animationChannel3.setAnim("SliceVertical");
-            System.out.println("Hello im cassio!!! Please press 1 to buy bananas!");
-           
+            hudText3.setText("Hello im cassio!!! Please press 1 to buy bananas!");
+            //System.out.println("Hello im cassio!!! Please press 1 to buy bananas!");
             
         }
         if(character.getPhysicsLocation().distance(cassio.getPhysicsLocation()) >= 10 || (Math.acos(vis3)* FastMath.RAD_TO_DEG) > 60) {
            awayFromCassio = true;
+           hudText3.setText("");
         }
         
         monkeyLocation = monkey.getPhysicsLocation();
@@ -242,13 +288,14 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         vis4 = (Oto2monkey.normalize()).dot((vD3.normalize()));
         
        
-        if(character.getPhysicsLocation().distance(monkey.getPhysicsLocation()) < 100 && (Math.acos(vis4)* FastMath.RAD_TO_DEG) < 120 && awayFromMonkey == true) { 
+        if(character.getPhysicsLocation().distance(monkey.getPhysicsLocation()) < 50 && (Math.acos(vis4)* FastMath.RAD_TO_DEG) < 120 && awayFromMonkey == true) { 
             //awayFromMonkey = false;
             monkeyOnMe = true;
             pursuit = true;
             animationChannel4.setAnim("Walk");
+            hudText4.setText("Haha i got you!!!");
             //System.out.println("Haha i got you!!!");
-            motionControl.stop();
+            //motionControl.stop();
             
             if (pursuit) {
             animationChannel4.setAnim("Walk");
@@ -263,15 +310,18 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
                 }
                 walkMonkey = new Vector3f(0f, 0f, 0f);
                 pursuit = false;
-                animationChannel4.setAnim("Idle");
+                //animationChannel4.setAnim("Idle");
             } else {
                 walkMonkey = otoLocation.subtract(monkeyLocation).multLocal(0.01f);
                 monkey.setViewDirection(walkMonkey.mult(-1f));
+                animationChannel4.setAnim("Walk");
               }
             }
             
             monkey.setWalkDirection(walkMonkey);
-      }
+      }else {
+            hudText4.setText("");
+        }
         
           results = new CollisionResults();
           Ray ray = new Ray(character.getPhysicsLocation(), character.getViewDirection());
@@ -367,7 +417,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
              initGuiBox.setLocalScale(10);
              initGuiBox.setLocalTranslation(0,10,0);
        
-        Box staminaBox = new Box(new Vector3f(0f,0f,0f),(10000-stamina)/500,1,1);
+        Box staminaBox = new Box(new Vector3f(0f,0f,0f),(5000-stamina)/500,1,1);
             Geometry stamGuiBox=new Geometry("Stamina Cube",staminaBox);
              Material mat2 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
             mat2.setColor("Color", ColorRGBA.White);
@@ -388,6 +438,19 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         getPhysicsSpace().add(sceneModel);
         
         rootNode.attachChild(sceneModel);
+    }
+    
+    private void createTerrain2() {
+        sceneModel2 = assetManager.loadModel("Scenes/town/main.scene");
+        sceneModel2.setLocalScale(1f);
+        sceneModel2.rotate(Quaternion.ZERO);
+        CollisionShape sceneShape = CollisionShapeFactory.createMeshShape((Node) sceneModel2);
+        landscape2 = new RigidBodyControl(sceneShape, 0);
+        sceneModel2.addControl(landscape2);
+        getPhysicsSpace().add(sceneModel2);
+        sceneModel2.rotate(0f, 0f, 0f);
+        rootNode.attachChild(sceneModel2);
+        
     }
     
     private void createSky() {
@@ -515,12 +578,12 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     }
     
     private void createMonkey() {
-        CapsuleCollisionShape capsule = new CapsuleCollisionShape(1f, 1.6f, 1);
+        CapsuleCollisionShape capsule = new CapsuleCollisionShape(0.6f, 0.6f);
         monkey = new CharacterControl(capsule, 2.75f);
         model4 = (Node) assetManager.loadModel("Models/monkeyExport/Jaime.j3o");
-        model4.setLocalScale(2.55f);
+        model4.setLocalScale(6f);
         model4.addControl(monkey);
-        monkey.setPhysicsLocation(new Vector3f(16.246029f, 1.01349f, 10.4667f));
+        monkey.setPhysicsLocation(new Vector3f(FastMath.nextRandomInt(-70,200), 2.01976f, FastMath.nextRandomInt(-100,75)));
         rootNode.attachChild(model4);
         getPhysicsSpace().add(monkey);
     }
@@ -962,43 +1025,43 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         }
     }
     
-    private void setupMotionPath() {
-        path = new MotionPath();
-        path.addWayPoint(new Vector3f(FastMath.nextRandomInt(-70,200), 4,FastMath.nextRandomInt(-100,75)));
-        path.addWayPoint(new Vector3f(FastMath.nextRandomInt(-70,200), 4,FastMath.nextRandomInt(-100,75)));
-        path.addWayPoint(new Vector3f(FastMath.nextRandomInt(-70,200), 4,FastMath.nextRandomInt(-100,75)));
-        path.addWayPoint(new Vector3f(FastMath.nextRandomInt(-70,200), 4,FastMath.nextRandomInt(-100,75)));
-        path.addWayPoint(new Vector3f(FastMath.nextRandomInt(-70,200), 4,FastMath.nextRandomInt(-100,75)));
-        path.addWayPoint(new Vector3f(FastMath.nextRandomInt(-70,200), 4,FastMath.nextRandomInt(-100,75)));
-        path.enableDebugShape(assetManager, rootNode);
-
-        motionControl = new MotionEvent(model4, path);
-        motionControl.setDirectionType(MotionEvent.Direction.Path);
-        motionControl.setRotation(new Quaternion().fromAngleNormalAxis(FastMath.HALF_PI, Vector3f.UNIT_Y));
-
-        motionControl.setInitialDuration(30f);
-        motionControl.setSpeed(0.6f);
-
-        guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
-        final BitmapText wayPointsText = new BitmapText(guiFont, false);
-        wayPointsText.setSize(guiFont.getCharSet().getRenderedSize());
-
-        guiNode.attachChild(wayPointsText);
-
-        path.addListener(new MotionPathListener() {
-            final BitmapText wayPointsText = new BitmapText(guiFont, false);
-
-            public void onWayPointReach(MotionEvent control, int wayPointIndex) {
-                animationChannel4.setAnim("Walk");
-                if (path.getNbWayPoints() == wayPointIndex + 1) {
-                    wayPointsText.setText(control.getSpatial().getName() + " Finish!!! ");
-                    animationChannel4.setAnim("Idle");
-                } else {
-                    wayPointsText.setText(control.getSpatial().getName() + " Reached way-point " + wayPointIndex);
-                    System.out.println("Way point  " + wayPointIndex + "reached,  object moving " + control.getSpatial().getName());
-                }
-                wayPointsText.setLocalTranslation((cam.getWidth() - wayPointsText.getLineWidth()) / 2, cam.getHeight(), 0);
-            }
-        });
-    }
+//    private void setupMotionPath() {
+//        path = new MotionPath();
+//        path.addWayPoint(new Vector3f(FastMath.nextRandomInt(-70,200), 1f,FastMath.nextRandomInt(-100,75)));
+//        path.addWayPoint(new Vector3f(FastMath.nextRandomInt(-70,200), 1f,FastMath.nextRandomInt(-100,75)));
+//        path.addWayPoint(new Vector3f(FastMath.nextRandomInt(-70,200), 1f,FastMath.nextRandomInt(-100,75)));
+//        path.addWayPoint(new Vector3f(FastMath.nextRandomInt(-70,200), 1f,FastMath.nextRandomInt(-100,75)));
+//        path.addWayPoint(new Vector3f(FastMath.nextRandomInt(-70,200), 1f,FastMath.nextRandomInt(-100,75)));
+//        path.addWayPoint(new Vector3f(FastMath.nextRandomInt(-70,200), 1f,FastMath.nextRandomInt(-100,75)));
+//        path.enableDebugShape(assetManager, rootNode);
+//
+//        motionControl = new MotionEvent(model4, path);
+//        motionControl.setDirectionType(MotionEvent.Direction.Path);
+//        motionControl.setRotation(new Quaternion().fromAngleNormalAxis(FastMath.HALF_PI, Vector3f.UNIT_Y));
+//
+//        motionControl.setInitialDuration(30f);
+//        motionControl.setSpeed(0.6f);
+//
+//        guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
+//        final BitmapText wayPointsText = new BitmapText(guiFont, false);
+//        wayPointsText.setSize(guiFont.getCharSet().getRenderedSize());
+//
+//        guiNode.attachChild(wayPointsText);
+//
+//        path.addListener(new MotionPathListener() {
+//            final BitmapText wayPointsText = new BitmapText(guiFont, false);
+//
+//            public void onWayPointReach(MotionEvent control, int wayPointIndex) {
+//                animationChannel4.setAnim("Walk");
+//                if (path.getNbWayPoints() == wayPointIndex + 1) {
+//                    wayPointsText.setText(control.getSpatial().getName() + " Finish!!! ");
+//                    animationChannel4.setAnim("Idle");
+//                } else {
+//                    wayPointsText.setText(control.getSpatial().getName() + " Reached way-point " + wayPointIndex);
+//                    System.out.println("Way point  " + wayPointIndex + "reached,  object moving " + control.getSpatial().getName());
+//                }
+//                wayPointsText.setLocalTranslation((cam.getWidth() - wayPointsText.getLineWidth()) / 2, cam.getHeight(), 0);
+//            }
+//        });
+//    }
 }
