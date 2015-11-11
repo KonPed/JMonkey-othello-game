@@ -45,6 +45,7 @@ import com.jme3.scene.shape.Box;
 import com.jme3.scene.shape.Dome;
 import com.jme3.scene.shape.Quad;
 import com.jme3.scene.shape.Sphere;
+import com.jme3.system.AppSettings;
 import com.jme3.texture.Texture;
 import com.jme3.util.SkyFactory;
 
@@ -59,74 +60,102 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     public static void main(String[] args) {
         Main app = new Main();
         app.start();
+        
     }
+    
+    private int  displacement2  = 10;
     private int displacement = 10;
     private int credit = 0;
     private int stamina = 5000;
-    private int cannonballs, bananas = 0;
-    private int mines, explosiveMines;
+    private int cannonballs, bananas, mines, food = 0;
+    private int explosiveMines;
     private Spatial sceneModel, sceneModel2, teapot;
     private RigidBodyControl landscape, landscape2;
     private CharacterControl character, vendor, cassio, monkey;
-    private Node model, model2, model3,model4, collectables, vaultNode, explosives;
+    private Node model, model2, model3, model4, collectables, vaultNode, explosives;
     private ChaseCamera chaseCam;
-    private boolean left,right,up,down, fireon;
-    private boolean key, torch, pursuit, monkeyOnMe, MonEating = false;
+    private boolean left,right,up,down, level;
+    private boolean key, torch, pursuit, monkeyOnMe, MonEating, fireon, gameOver = false;
     private boolean awayFromCassio, away, awayFromMonkey = true;
     Vector3f walkDirection = new Vector3f();
-    private float airTime, vis2, vis3, vis4, timer, eatingTimer;
+    private float airTime, vis2, vis3, vis4, timer, timer2, eatingTimer;
     private AnimControl animationControl,animationControl2, animationControl3, animationControl4;
     private AnimChannel animationChannel, animationChannel2, animationChannel3, animationChannel4;
     private Vector3f otoLocation, sinbadLocation, Oto2SinBad, cassioLocation, monkeyLocation, Oto2cassio, Oto2monkey, walkMonkey;
     DirectionalLight dl;
     PointLight pl;
-    BitmapText hudText, hudText2, hudText3, hudText4;
+    BitmapText hudText, hudText2, hudText3, hudText4, hudTextinfo, hudText6;
     ParticleEmitter fire,explosion;
     CollisionResult closest2, closest;
     CollisionResults results, results2;
     private MotionPath path;
     private MotionEvent motionControl;
     float PROXIMITY = 4.0f;
+    private Node sceneNode;
+    RigidBodyControl mine_phy;
     
     @Override
     public void simpleInitApp() {
        bulletAppState = new BulletAppState();
        stateManager.attach(bulletAppState);
        
+       setDisplayFps(false);
+       setDisplayStatView(false);
+       
+       
             hudText = new BitmapText(guiFont, false);        
             hudText.setSize(guiFont.getCharSet().getRenderedSize());      // font size
-            hudText.setColor(new ColorRGBA(0.5f, 0.3f, 0f, 0.5f));                             // font color
+            hudText.setColor(ColorRGBA.White);// font color
         //    String text1=hudText.getText();
        //     String text2[]=text1.split(":");
             
-//            hudText.setText("STAMINA: "+ stamina);             // the text
-            hudText.setLocalTranslation(0, settings.getHeight(), 0); // position
+//          hudText.setText("STAMINA: "+ stamina);             // the text
+            hudText.setLocalTranslation(0, settings.getHeight()-420, 0); // position
             guiNode.attachChild(hudText);
             
             hudText2 = new BitmapText(guiFont, false);
             hudText2.setSize(guiFont.getCharSet().getRenderedSize());
             hudText2.setColor(ColorRGBA.Yellow);
             
-            hudText2.setLocalTranslation(300, hudText2.getLineHeight(), 0);
+            hudText2.setLocalTranslation(470, hudText2.getLineHeight()+680, 0);
             guiNode.attachChild(hudText2);
             
             hudText3 = new BitmapText(guiFont, false);
             hudText3.setSize(guiFont.getCharSet().getRenderedSize());
             hudText3.setColor(ColorRGBA.Yellow);
             
-            hudText3.setLocalTranslation(300, hudText3.getLineHeight(), 0);
+            hudText3.setLocalTranslation(470, hudText2.getLineHeight()+680, 0);
             guiNode.attachChild(hudText3);
             
             hudText4 = new BitmapText(guiFont, false);
             hudText4.setSize(guiFont.getCharSet().getRenderedSize());
-            hudText4.setColor(ColorRGBA.Yellow);
+            hudText4.setColor(ColorRGBA.Red);
             
-            hudText4.setLocalTranslation(300, hudText4.getLineHeight(), 0);
+            hudText4.setLocalTranslation(575, hudText2.getLineHeight()+660, 0);
             guiNode.attachChild(hudText4);
-       
+            
+            hudTextinfo = new BitmapText(guiFont, false);
+            hudTextinfo.setSize(guiFont.getCharSet().getRenderedSize());
+            hudTextinfo.setColor(ColorRGBA.Yellow);
+            hudTextinfo.setLocalTranslation(470, hudText2.getLineHeight()+680, 0);
+            guiNode.attachChild(hudTextinfo);
+            
+//             hudText6 = new BitmapText(guiFont, false);
+//            hudText6.setSize(guiFont.getCharSet().getRenderedSize());
+//            hudText6.setColor(ColorRGBA.Yellow);
+//            hudText6.setLocalTranslation(470, hudText2.getLineHeight()+680, 0);
+//            guiNode.attachChild(hudText6);
+            
+            hudText6 = new BitmapText(guiFont, false);        
+       //  hudText4.setSize(guiFont.getCharSet().getRenderedSize());
+        hudText6.setSize(100);      // font size
+        hudText6.setColor(ColorRGBA.Red);                             // font color
+        hudText6.setLocalTranslation(400, hudText6.getLineHeight()+350, 0); // position
+        guiNode.attachChild(hudText6);
+            
         setupKeys();
         createTerrain();
-        createTerrain2();
+        //createTerrain2();
         createSky();
         createLight();
         createCharacter();
@@ -137,6 +166,8 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         makemines();
         makeExplosiveMines();
         makeInventory();
+        makeInventory2();
+        makeInventory3();
         createPointLight();
         makewall();
         createDoor();
@@ -147,13 +178,16 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         
     }
 
+    
     @Override
     public void simpleUpdate(float tpf) {
+        
+      
         //System.out.println(character.getPhysicsLocation());
         //System.out.println(cam.getDirection());
         
 //             
-//               hudText = new BitmapText(guiFont, false);        
+//            hudText = new BitmapText(guiFont, false);        
 //            hudText.setSize(guiFont.getCharSet().getRenderedSize());      // font size
 //            hudText.setColor(new ColorRGBA(0.5f, 0.3f, 0f, 0.5f));                             // font color
 //        //    String text1=hudText.getText();
@@ -162,14 +196,34 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
 //            hudText.setText("STAMINA: "+ stamina);             // the text
 //            hudText.setLocalTranslation(0, settings.getHeight(), 0); // position
 //            guiNode.attachChild(hudText);
-        
+      if(gameOver == false) {
+            if(character.getPhysicsLocation().y > -5 && character.getPhysicsLocation().y < 0) {
+              if(character.getPhysicsLocation().z<-109.8 && character.getPhysicsLocation().x>40 && character.getPhysicsLocation().x<80){
+                    level = true;
+                    character.setPhysicsLocation(new Vector3f(40,10,0));
+                    cassio.setPhysicsLocation(new Vector3f(5.06524f, 1, -12.185619f));
+                    rootNode.attachChild(model3);
+                    monkey.setPhysicsLocation(new Vector3f(FastMath.nextRandomInt(-31,72), 2.01976f, FastMath.nextRandomInt(-9,-9)));
+                    rootNode.attachChild(model4);
+                    rootNode.attachChild(explosives);
+                    rootNode.detachChild(collectables);
+                    
+                    
+                }else 
+                  gameOver = true;
+            }
         pl.setPosition(character.getPhysicsLocation());
         
-        hudText.setText("STAMINA: "+ stamina);
+        hudText.setText("\n\nCREDITS: "+credit+"\n\nBANANAS: "+bananas+"\n\nCANNONBALLS: "+cannonballs+"\n\nFOOD: "+food+ "\n\nSTAMINA: "+ stamina);
         
         stamina -= tpf;
         stamina();
-         
+        
+        if(stamina < 0){
+            stamina = 0;
+        }
+        
+       
          Vector3f camDir = cam.getDirection().clone().multLocal(0.5f); //speed
          Vector3f camLeft = cam.getLeft().clone().multLocal(0.5f);
         
@@ -252,7 +306,10 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         if(character.getPhysicsLocation().distance(vendor.getPhysicsLocation())<10 && (Math.acos(vis2)* FastMath.RAD_TO_DEG) < 60 && away == true) {
              away = false;
             animationChannel2.setAnim("SliceVertical");
-            hudText2.setText("Hello Stranger!!! Please press 1 to buy a torch!");
+            hudText2.setText("Hello Stranger!!! Press 1 to buy a torch so you can see in the night!\n"
+                    + "Press 2 to get the key for the door\n"
+                    + "or 3 to buy some food!");
+            
             //System.out.println("Hello Stranger!!! Please press 1 to buy a torch!");
            }
         if(character.getPhysicsLocation().distance(vendor.getPhysicsLocation()) >= 10 || (Math.acos(vis2)* FastMath.RAD_TO_DEG) > 60) {
@@ -271,7 +328,8 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         if(character.getPhysicsLocation().distance(cassio.getPhysicsLocation()) < 10 && (Math.acos(vis3)* FastMath.RAD_TO_DEG) < 60 && awayFromCassio == true) {
              awayFromCassio = false;
             animationChannel3.setAnim("SliceVertical");
-            hudText3.setText("Hello im cassio!!! Please press 1 to buy bananas!");
+            hudText3.setText("Hello im cassio!!! Please press 1 to buy bananas!\n"
+                    + "or 2 to buy cannonballs!");
             //System.out.println("Hello im cassio!!! Please press 1 to buy bananas!");
             
         }
@@ -288,7 +346,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         vis4 = (Oto2monkey.normalize()).dot((vD3.normalize()));
         
        
-        if(character.getPhysicsLocation().distance(monkey.getPhysicsLocation()) < 50 && (Math.acos(vis4)* FastMath.RAD_TO_DEG) < 120 && awayFromMonkey == true) { 
+        if(character.getPhysicsLocation().distance(monkey.getPhysicsLocation()) < 80 && (Math.acos(vis4)* FastMath.RAD_TO_DEG) < 120 && awayFromMonkey == true && level == true) { 
             //awayFromMonkey = false;
             monkeyOnMe = true;
             pursuit = true;
@@ -323,6 +381,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
             hudText4.setText("");
         }
         
+        if(level == false) {
           results = new CollisionResults();
           Ray ray = new Ray(character.getPhysicsLocation(), character.getViewDirection());
           collectables.collideWith(ray, results);
@@ -332,6 +391,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
           closest = results.getClosestCollision();
           float distance = closest.getDistance();
             if(distance < 15) {
+                hudTextinfo.setText("Mine Collected");
                 System.out.println("Mine collected");
                 mines++;
                 System.out.println(mines);
@@ -346,14 +406,22 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
             
              guiNode.attachChild(geoGuiBox);
              geoGuiBox.setLocalScale(10);
-             geoGuiBox.setLocalTranslation(settings.getWidth()-23,displacement,0);
+             geoGuiBox.setLocalTranslation(settings.getWidth()-21,displacement,0);
                 displacement+=30;
                 
                 credit += 10;
                 System.out.println("credits : " + credit);
             }
-         }
-           
+         }else {
+                timer2 += tpf;
+                System.out.println(timer2);
+                if(timer2 > 2){
+                    hudTextinfo.setText("");
+                    timer2 = 0;
+                }
+             }
+        }
+        if(level == true) {            
           results2 = new CollisionResults();
           Ray ray2 = new Ray(character.getPhysicsLocation(), character.getViewDirection());
           explosives.collideWith(ray2, results2);
@@ -361,10 +429,13 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
           closest2 = results2.getClosestCollision();
           float distance2 = closest2.getDistance();
             if(distance2 <= 150 && distance2 >= 15){
+                hudTextinfo.setText("target on sight.");
                 System.out.println("target on sight.");
-                  }
+                  }else hudTextinfo.setText("");
             if(distance2 < 15) {
-                System.out.println("Mine exploded");
+                hudTextinfo.setText("Ouch!!!");
+                stamina -= 1500;
+                System.out.println("Ouch!!!");
                 createExplosion();
                 explosives.detachChild(closest2.getGeometry());
                 
@@ -377,14 +448,21 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
             
              guiNode.attachChild(geoGuiBox);
              geoGuiBox.setLocalScale(10);
-             geoGuiBox.setLocalTranslation(settings.getWidth()-23,displacement,0);
-                displacement+=30;
+             geoGuiBox.setLocalTranslation(settings.getWidth()-60,displacement2,0);
+                displacement2+=30;
                 
                 credit += 20;
                 System.out.println("credits : " + credit);
                 
                        }
-                    }
+                    }else {
+                             timer2 += tpf;
+                             System.out.println(timer2);
+                             if(timer2 > 2){
+                             hudTextinfo.setText("");
+                             timer2 = 0;
+                            }
+                         }
             
                     if(MonEating == true) {
                         eatingTimer += tpf;
@@ -393,8 +471,16 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
                             MonEating = false;
                         }
                     }
+                    
+        }
        
-    }
+      }else {
+          hudText6.setText("You died!\nGame Over");
+          rootNode.detachAllChildren();
+      }
+          
+        
+}
 
     @Override
     public void simpleRender(RenderManager rm) {
@@ -409,15 +495,17 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     public void stamina(){
         
         Box initialBox = new Box(new Vector3f(0f,0f,0f),20,1,1);
+            
+            float width = settings.getWidth();
             Geometry initGuiBox=new Geometry("Initial Cube",initialBox);
             Material mat1 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
             mat1.setColor("Color", ColorRGBA.Red);
             initGuiBox.setMaterial(mat1);
              guiNode.attachChild(initGuiBox);
              initGuiBox.setLocalScale(10);
-             initGuiBox.setLocalTranslation(0,10,0);
+             initGuiBox.setLocalTranslation(0,50,0);
        
-        Box staminaBox = new Box(new Vector3f(0f,0f,0f),(5000-stamina)/500,1,1);
+        Box staminaBox = new Box(new Vector3f(0f,0f,0f),(5000-stamina)/250,1,1);
             Geometry stamGuiBox=new Geometry("Stamina Cube",staminaBox);
              Material mat2 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
             mat2.setColor("Color", ColorRGBA.White);
@@ -425,7 +513,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
                guiNode.attachChild(stamGuiBox);
               
              stamGuiBox.setLocalScale(10);
-             stamGuiBox.setLocalTranslation(0,10,0);
+             stamGuiBox.setLocalTranslation(0,50,0);
      }
     
     private void createTerrain() {
@@ -441,14 +529,13 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     }
     
     private void createTerrain2() {
-        sceneModel2 = assetManager.loadModel("Scenes/town/main.scene");
-        sceneModel2.setLocalScale(1f);
+        sceneModel2 = assetManager.loadModel("Scenes/wildhouse/main.j3o");
+        sceneModel2.setLocalScale(0.5f);
         sceneModel2.rotate(Quaternion.ZERO);
         CollisionShape sceneShape = CollisionShapeFactory.createMeshShape((Node) sceneModel2);
         landscape2 = new RigidBodyControl(sceneShape, 0);
         sceneModel2.addControl(landscape2);
         getPhysicsSpace().add(sceneModel2);
-        sceneModel2.rotate(0f, 0f, 0f);
         rootNode.attachChild(sceneModel2);
         
     }
@@ -489,11 +576,11 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
      }
     
     private void createCharacter() {
-        CapsuleCollisionShape capsule = new CapsuleCollisionShape(2f, 1.6f, 1);
+        CapsuleCollisionShape capsule = new CapsuleCollisionShape(2f, 2f, 1);
         character = new CharacterControl(capsule, 2.75f);
         model = (Node) assetManager.loadModel("Models/Oto/Oto.mesh.xml");
         model.setLocalScale(0.4f);
-        character.setJumpSpeed(40f);
+        character.setJumpSpeed(30f);
         character.setGravity(90f);
         character.setFallSpeed(50f);
         model.addControl(character);
@@ -517,8 +604,8 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         model3 = (Node) assetManager.loadModel("Models/Sinbad/Sinbad.mesh.j3o");
         model3.setLocalScale(0.4f);
         model3.addControl(cassio);
-        cassio.setPhysicsLocation(new Vector3f(5.06524f, 1, -12.185619f));
-        rootNode.attachChild(model3);
+//        cassio.setPhysicsLocation(new Vector3f(5.06524f, 1, -12.185619f));
+        //rootNode.attachChild(model3);
         getPhysicsSpace().add(cassio);
     }
     
@@ -583,8 +670,8 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         model4 = (Node) assetManager.loadModel("Models/monkeyExport/Jaime.j3o");
         model4.setLocalScale(6f);
         model4.addControl(monkey);
-        monkey.setPhysicsLocation(new Vector3f(FastMath.nextRandomInt(-70,200), 2.01976f, FastMath.nextRandomInt(-100,75)));
-        rootNode.attachChild(model4);
+        //monkey.setPhysicsLocation(new Vector3f(FastMath.nextRandomInt(-70,200), 2.01976f, FastMath.nextRandomInt(-100,75)));
+        //rootNode.attachChild(model4);
         getPhysicsSpace().add(monkey);
     }
     
@@ -598,10 +685,11 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     geo.setLocalTranslation(loc);
     geo.setMaterial(mat);
     geo.rotate(0, 0, 0.5f);
-    //mine_phy = new RigidBodyControl(1f);
+//    mine_phy = new RigidBodyControl(1f);
+//    mine_phy.setGravity(90f);
     
     //geo.addControl(mine_phy);
-   // bulletAppState.getPhysicsSpace().add(mine_phy);
+    //|bulletAppState.getPhysicsSpace().add(mine_phy);
     rootNode.attachChild(geo);
     return geo;
   }
@@ -634,33 +722,70 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
                     2,
                     FastMath.nextRandomInt(-100, 80));
             
-            explosives.attachChild(createExplosiveMine("mine"+i,loc));
+            explosives.attachChild(createExplosiveMine("mine",loc));
         }
-        rootNode.attachChild(explosives);
+        //rootNode.attachChild(explosives);
     }
     
     private void makemines() {
         collectables = new Node("Collectables");
-        for (int i = 0; i < 40; i++) {
+        for (int i = 0; i < 20; i++) {
             // randomize 3D coordinates
             Vector3f loc = new Vector3f(
                     FastMath.nextRandomInt(-75, 215),
                     2,
                     FastMath.nextRandomInt(-100, 80));
             
-            collectables.attachChild(createMine("mine"+i,loc));
+            collectables.attachChild(createMine("mine",loc));
         }
         rootNode.attachChild(collectables);
     }
     
     public void makeInventory() {
     //DirectionalLight sun2 = new DirectionalLight();
+    //sun2.setDirection(new Vector3f(-0.1f, 6.7f, -1.0f));
+    float width = settings.getWidth();
+    float height = settings.getHeight();
+    Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+    mat.setColor("Color",ColorRGBA.White);
+    Geometry cubeHUD = makeCube("Vertical Gui Line", 0f,0f,0f);
+    cubeHUD.setMaterial(mat);
+    cubeHUD.setLocalTranslation(width-3,0,0);
+    cubeHUD.setLocalScale(3,height,0);
+    guiNode.attachChild(cubeHUD);
+    //guiNode.addLight(sun2);
+    rootNode.attachChild(guiNode);
+    
+    }
+    
+    public void makeInventory2() {
+    //DirectionalLight sun2 = new DirectionalLight();
     //sun2.setDirection(new Vector3f(-0.1f, -0.7f, -1.0f));
     float width = settings.getWidth();
     float height = settings.getHeight();
+    Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+    mat.setColor("Color",ColorRGBA.DarkGray);
     Geometry cubeHUD = makeCube("Vertical Gui Line", 0f,0f,0f);
-    cubeHUD.setLocalTranslation(width-50f,0,0);
+    cubeHUD.setMaterial(mat);
+    cubeHUD.setLocalTranslation(width-40f,0,0);
     cubeHUD.setLocalScale(2,height,1);
+    guiNode.attachChild(cubeHUD);
+   // guiNode.addLight(sun2);
+    rootNode.attachChild(guiNode);
+    
+    }
+    
+    public void makeInventory3() {
+    //DirectionalLight sun2 = new DirectionalLight();
+    //sun2.setDirection(new Vector3f(-0.1f, -0.7f, -1.0f));
+    float width = settings.getWidth();
+    float height = settings.getHeight();
+    Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+    mat.setColor("Color",ColorRGBA.White);
+    Geometry cubeHUD = makeCube("Vertical Gui Line", 0f,0f,0f);
+    cubeHUD.setMaterial(mat);
+    cubeHUD.setLocalTranslation(width-80f,0,0);
+    cubeHUD.setLocalScale(3,height,1);
     guiNode.attachChild(cubeHUD);
    // guiNode.addLight(sun2);
     rootNode.attachChild(guiNode);
@@ -758,13 +883,17 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         inputManager.addMapping("CharDown", new KeyTrigger(KeyInput.KEY_S));
         inputManager.addMapping("CharSpace", new KeyTrigger(KeyInput.KEY_SPACE));
         inputManager.addMapping("Char1", new KeyTrigger(KeyInput.KEY_1));
-        inputManager.addMapping("fireOn", new KeyTrigger(KeyInput.KEY_2));
-        inputManager.addMapping("fireOff", new KeyTrigger(KeyInput.KEY_F));
+        inputManager.addMapping("Char2", new KeyTrigger(KeyInput.KEY_2));
+        inputManager.addMapping("CharThree", new KeyTrigger(KeyInput.KEY_3));
+        inputManager.addMapping("fireOn", new KeyTrigger(KeyInput.KEY_F));
+        //inputManager.addMapping("fireOff", new KeyTrigger(KeyInput.KEY_F));
         inputManager.addMapping("rotateDoor", new KeyTrigger(KeyInput.KEY_R));
-        inputManager.addMapping("Key", new KeyTrigger(KeyInput.KEY_K));
-        inputManager.addMapping("CharB", new KeyTrigger(KeyInput.KEY_B));
+        //inputManager.addMapping("Key", new KeyTrigger(KeyInput.KEY_K));
+        //inputManager.addMapping("CharB", new KeyTrigger(KeyInput.KEY_B));
         inputManager.addMapping("Shoot", new KeyTrigger(KeyInput.KEY_RETURN));
-        inputManager.addMapping("bananas", new KeyTrigger(KeyInput.KEY_L));
+        inputManager.addMapping("bananas", new KeyTrigger(KeyInput.KEY_B));
+        //inputManager.addMapping("Char1", new KeyTrigger(KeyInput.KEY_1));
+        inputManager.addMapping("CharEat", new KeyTrigger(KeyInput.KEY_E));
         
         inputManager.addListener(this, "CharLeft");
         inputManager.addListener(this, "CharRight");
@@ -779,9 +908,13 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         inputManager.addListener(this, "Shoot");
         inputManager.addListener(this, "CharB");
         inputManager.addListener(this, "bananas");
+        inputManager.addListener(this, "CharThree");
+        inputManager.addListener(this, "Char2");
+        inputManager.addListener(this, "CharEat");
     }
     
-    public void onAction(String binding, boolean value, float tpf){
+    
+    public void onAction(String binding, boolean value, float tpf) {
         if (binding.equals("CharLeft")) {
             if (value) {
                 left = true;
@@ -794,7 +927,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
             } else {
                 right = false;
             }
-        }else if (binding.equals("CharUp")) {
+        } else if (binding.equals("CharUp")) {
             if (value) {
                 up = true;
             } else {
@@ -808,75 +941,120 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
             }
         } else if (binding.equals("CharSpace")) {
             character.jump();
-        } 
-        
-        if (binding.equals("Char1") && torch == false && !value == true) {
-            if(character.getPhysicsLocation().distance(vendor.getPhysicsLocation()) < 10 && (Math.acos(vis2)* FastMath.RAD_TO_DEG) < 60) {
-                if(credit >= 30 && torch == false){
-                    torch = true;
-                    System.out.println("Torch purchased");
-                }else if(torch == true) {
-                    System.out.println("Torch alredy purchased!");
-                }else {
-                    System.out.println("Not enough credits!!");
-                }
-            }  
         }
         
-        if (binding.equals("fireOn")) {
-            if(torch == true && fireon == false){
-                createFire();
-                createTorch();
-                rootNode.addLight(pl);
-                fireon = true;
+       else if (binding.equals("Char1") && !value==true) {
+             if (character.getPhysicsLocation().distance(vendor.getPhysicsLocation())<10 && (Math.acos(vis2)*FastMath.RAD_TO_DEG)<60){
+                 if(torch==false){
+                     if(credit>=20){
+                         
+                         torch=true;
+                        credit-=20;
+                        hudText2.setText("Torch purchased!\nPress F to turn it on or off");
+
+                     }
+                     else
+                       hudText2.setText("You need 40 credits to buy a torch");
+                       // System.out.println("You need 40 credits to buy a torch");
+                 }
+                 else
+                    // System.out.println("You have already purchased a torch");
+                      hudText2.setText("You have already purchased a torch");
+                 
+             }else if (character.getPhysicsLocation().distance(cassio.getPhysicsLocation())<10 && (Math.acos(vis3)*FastMath.RAD_TO_DEG)<60){
+   
+                     if(credit>=10){
+                         
+                        credit-=10;
+                        bananas+=10;
+                        
+                        hudText2.setText("10 Bananas purchased!");
+                       
+  
+                     }else
+                        hudText2.setText(" Sorry!\nYou dont have\nenough credits to buy bananas");
+
             }
-        }
-        
-        if (binding.equals("fireOff")) {
-            if(fireon == true && torch == true){
-            model.detachChild(fire);
-            model.detachChild(teapot);
-            rootNode.removeLight(pl);
-            fireon = false;
-            torch = false;
-            }
-        }
-        
-        if (binding.equals("rotateDoor") && !value == true) {
-            if (key == true) {
-            vaultNode.rotate(0, 1.6f, 0);
-                System.out.println("Door Opened!!!");
-            }else {
-                System.out.println("Key is required to open the door.");
-            }
-        }
-        
-        if (binding.equals("Key") && !value == true) {
-          if(character.getPhysicsLocation().distance(cassio.getPhysicsLocation()) < 10 && (Math.acos(vis3)* FastMath.RAD_TO_DEG) < 60) {
-            if(mines >= 3 && key == false) {
-                key = true;
-                System.out.println("Key purchased");      
-            }else if(key == true) {
-                System.out.println("Key alrady purchased!");
-            }else {
-                System.out.println("not enough mines collected for key.");
-            }
+       }
             
+            else if (binding.equals("fireOn") && !value==true) {
+            if (torch==true){
+                if (fireon==false){
+                    createFire();   
+                    createTorch();
+                    rootNode.addLight(pl);
+                    fireon=true;
+                }
+            
+            
+                else{
+                    model.detachChild(fire);
+                    model.detachChild(teapot);
+                    rootNode.removeLight(pl);
+                    fireon=false;
+                }
+            
+        }else hudTextinfo.setText("You do not have\n a torch yet.");
+            }
+        else if (binding.equals("rotateDoor") && !value==true) {
+            if (character.getPhysicsLocation().distance(vaultNode.getLocalTranslation())<20){
+                //if (key==true)
+                    vaultNode.rotate(0,1.6f,0);
+                //else
+                    hudTextinfo.setText("You need a key\n to open the door!");
+            
+            }
+           
+ 
         }
-      }
-       
-       if (binding.equals("Shoot") && !value == true) {
-           if(cannonballs > 0) {
+        
+        else if (binding.equals("Char2") && !value==true) {
+             if (character.getPhysicsLocation().distance(vendor.getPhysicsLocation())<10 && (Math.acos(vis2)*FastMath.RAD_TO_DEG)<60){
+                 if (key==false){
+                     if(mines>=3){
+                    
+                    //System.out.println("Key purchased");
+                         hudText2.setText("Key obtained");
+                    key=true;
+
+                     }
+                     else
+                       hudText2.setText("Not enough mines collected.\n  16 required");
+                 }
+                 else
+                     hudText2.setText("You already have the key");
+                 }
+             else if (character.getPhysicsLocation().distance(cassio.getPhysicsLocation())<10 && (Math.acos(vis3)*FastMath.RAD_TO_DEG)<60){
+                 
+                     if(credit>=20){
+                         
+                    cannonballs+=100;
+                    credit-=20;
+                    
+                    hudText2.setText("100 cannonballs purchased!");
+                   
+
+                     }
+                     else
+                        hudText2.setText("You need 20 credits to\n  buy cannonballs");
+             }
+ 
+        }
+        else if (binding.equals("Shoot") && !value==true){
+                
+            if(cannonballs!=0){
               //  shoot=true;
                 if (results2.size() > 0) {      
           closest2 = results2.getClosestCollision();
           float dist1 = closest2.getDistance();
           
 
-          if(dist1<150 && dist1>10){
-                System.out.println("Mine destroyed");
+          if(dist1<100 && dist1>10){
+                
+                //System.out.println("Mine destroyed");
                 createExplosion();
                 explosives.detachChild(closest2.getGeometry());
+                hudTextinfo.setText("Mine has been disarmed");
                 
             Box guiBoxRed = new Box(new Vector3f(0f,0f,0f),1,1,1);
             Geometry geoGuiBoxRed=new Geometry("Inventory Cube",guiBoxRed);
@@ -886,21 +1064,22 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
 
              guiNode.attachChild(geoGuiBoxRed);
              geoGuiBoxRed.setLocalScale(10);
-             geoGuiBoxRed.setLocalTranslation(settings.getWidth()-40,displacement,0);
-             displacement+=30;
-             if (displacement>=settings.getHeight()){
-                 displacement=10;
-                 //column=40;
-             }
+             geoGuiBoxRed.setLocalTranslation(settings.getWidth()-60,displacement2,0);
+             displacement2+=30;
+//             if (displacement>=settings.getHeight()){
+//                 displacement=30;
+//                 //column=40;
+//             }
              
              credit+=10;
              explosiveMines++;
+            
              //stamina-=1000;
-             System.out.println("Credits: "+credit);
-          }
+             //System.out.println("Credits: "+credits);
+          }else hudTextinfo.setText("");
 
           }
-                
+              cannonballs--;   
                
           
        
@@ -924,63 +1103,247 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
                 cannonballs--;*/
                 
             }
-           
-               
-               
-           
-                
-//                Sphere bullet = new Sphere(40,40,1f);
-//                Geometry bulletg = new Geometry("bullet", bullet);
-//                Material matBullet = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-//                matBullet.setColor("Color",ColorRGBA.Yellow);
-//                bulletg.setMaterial(matBullet);
-//                bulletg.setShadowMode(RenderQueue.ShadowMode.CastAndReceive);
-//                bulletg.setLocalTranslation(character.getPhysicsLocation());
-//                
-//               SphereCollisionShape bulletCollisionShape = new SphereCollisionShape(1f);
-//               RigidBodyControl bulletNode = new RigidBodyControl(bulletCollisionShape, 1);
-//               
-//               bulletNode.setLinearVelocity(character.getViewDirection().mult(15));
-//               bulletg.addControl(bulletNode);
-//               bulletAppState.getPhysicsSpace().add(bulletNode);
-//               rootNode.attachChild(bulletg);
-//               getPhysicsSpace().add(bulletNode);
-      
-      }
-        
-            if (binding.equals("Char1") && !value == true) {
-                 if(character.getPhysicsLocation().distance(cassio.getPhysicsLocation()) < 10 && (Math.acos(vis3)* FastMath.RAD_TO_DEG) < 60) {
-                     if(credit >= 10){
-                     System.out.println("you bought 10 bananas");
-                     bananas += 10;
-                     credit -= 10;
-                         System.out.println(credit);
-                     }else {
-                         System.out.println("Sorry! you don't have enough credits.");
-                     }
-                 }
-              }
-            if(binding.equals("CharB") && !value == true) {
-                if(character.getPhysicsLocation().distance(cassio.getPhysicsLocation()) < 10 && (Math.acos(vis3)* FastMath.RAD_TO_DEG) < 60) {
-                    if(credit >= 10){
-                        System.out.println("you bought 10 cannoballs");
-                        credit -= 10;
-                        cannonballs += 10;
-                        System.out.println(credit);
-                    }else {
-                        System.out.println("Sorry! you don't have enough credits.");
-                    }
-                }
-                
             }
-            
-            if(binding.equals("bananas") && !value == true) {
-                if(bananas > 0 && monkeyOnMe == true) {
-                    bananas--;
-                    MonEating = true;
-                }else {
-                    System.out.println("Monkey needs bananas and you dont have any.");
-                }
+        
+        else if (binding.equals("CharDodge") && !value==true){
+            animationChannel.setAnim("Dodge",0.05f);
+        }
+        
+        else if (binding.equals("bananas") && !value==true){
+            if(bananas!=0){
+                 if(monkeyOnMe==true){
+                     
+                     
+                     //System.out.println("You have given monkey a banana");
+                     hudText.setText("You have given monkey a banana");
+                     bananas--;
+                     //System.out.println("You now have "+bananas+ "bananas");
+                     hudText.setText("Now you have "+bananas+ "bananas");
+                   //  pursuit=false;
+                     MonEating=true;
+                 }  
+                     
+                     
+                  //   animationChannel3.setAnim("Walk");
+                  //   motionControl1.play();
+                     
+                    
+ 
+            }
+           
+        }
+         else if (binding.equals("CharThree") && !value==true) {
+             if (character.getPhysicsLocation().distance(vendor.getPhysicsLocation())<10 && (Math.acos(vis2)*FastMath.RAD_TO_DEG)<60){
+                 
+                     if(credit>=20){
+                         
+                        credit-=20;
+                        food++;
+                        hudText2.setText("Food purchased!\nPress E to consume");
+                     
+
+                     }
+                     else
+                        hudText2.setText("You need 20 credits to buy food");
+                 }
+                
+             }
+         else if(binding.equals("CharEat") && !value==true){
+               if(food!=0){
+                food--;
+                if(stamina+1000>5000){
+                           //  hudText1.setText("Food purchased!\nStamina increased by "+(10000-stamina));
+                            stamina=5000;
+                        }
+                            
+                        else{
+                            //hudText1.setText("Food purchased!\nStamina increased by 1000");
+                            stamina+=1000;
+                        }
+               }
+         }
+        }
+    
+//    public void onAction(String binding, boolean value, float tpf){
+//        if (binding.equals("CharLeft")) {
+//            if (value) {
+//                left = true;
+//            } else {
+//                left = false;
+//            }
+//        } else if (binding.equals("CharRight")) {
+//            if (value) {
+//                right = true;
+//            } else {
+//                right = false;
+//            }
+//        }else if (binding.equals("CharUp")) {
+//            if (value) {
+//                up = true;
+//            } else {
+//                up = false;
+//            }
+//        } else if (binding.equals("CharDown")) {
+//            if (value) {
+//                down = true;
+//            } else {
+//                down = false;
+//            }
+//        } else if (binding.equals("CharSpace")) {
+//            character.jump();
+//        }
+//        
+//       else if (binding.equals("Char1") && !value==true) {
+//             if (character.getPhysicsLocation().distance(vendor.getPhysicsLocation())<10 && (Math.acos(vis2)*FastMath.RAD_TO_DEG)<60){
+//                 if(torch==false){
+//                     if(credit>=20){
+//                         
+//                         torch=true;
+//                        credit-=20;
+//                        hudText2.setText("Torch purchased!\nPress F to turn fire on/off");
+//
+//                     }
+//                     else
+//                       hudText2.setText("You need 40 credits to buy a torch");
+//                       // System.out.println("You need 40 credits to buy a torch");
+//                 }
+//                 else
+//                    // System.out.println("You have already purchased a torch");
+//                      hudText2.setText("You have already purchased a torch");
+//                 
+//             }
+//             
+//             else if (character.getPhysicsLocation().distance(cassio.getPhysicsLocation())<10 && (Math.acos(vis3)*FastMath.RAD_TO_DEG)<60){
+//   
+//                     if(credit>=10){
+//                         
+//                        credit-=10;
+//                        bananas+=10;
+//                        
+//                        hudText3.setText("10 Bananas purchased!");
+//                       
+//  
+//                     }
+//                     else
+//                        hudText3.setText("You need 10 credits\n  to buy bananas");
+//
+//            }
+//       }
+//        
+////        if (binding.equals("Char1") && torch == false && !value == true) {
+////            if(character.getPhysicsLocation().distance(vendor.getPhysicsLocation()) < 10 && (Math.acos(vis2)* FastMath.RAD_TO_DEG) < 60) {
+////                if(credit >= 30) {
+////                    torch = true;
+////                    hudText2.setText("Torch purchased");
+////                    credit -= 10;
+////                    //System.out.println("Torch purchased");
+////                }else if(torch == true) {
+////                    hudText2.setText("Torch alredy purchased!");
+////                    //System.out.println("Torch alredy purchased!");
+////                }else  {
+////                    hudText2.setText("Not enough credits!!");
+////                    //System.out.println("Not enough credits!!");
+////                }
+////            }  
+////        }
+//        
+//       else if (binding.equals("fireOn") && !value==true) {
+//            if (torch==true){
+//                if (fireon==false){
+//                    createFire();   
+//                    createTorch();
+//                    rootNode.addLight(pl);
+//                    fireon=true;
+//                }else{
+//                    model.detachChild(fire);
+//                    model.detachChild(teapot);
+//                    rootNode.removeLight(pl);
+//                    fireon=false;
+//                }
+//            
+//        }
+//            }
+//        
+//       else if (binding.equals("rotateDoor") && !value == true) {
+//            if (key == true) {
+//            vaultNode.rotate(0, 1.6f, 0);
+//                System.out.println("Door Opened!!!");
+//            }else {
+//                System.out.println("Key is required to open the door.");
+//            }
+//        }
+//        
+//       else if (binding.equals("Key") && !value == true) {
+//          if(character.getPhysicsLocation().distance(cassio.getPhysicsLocation()) < 10 && (Math.acos(vis3)* FastMath.RAD_TO_DEG) < 60) {
+//            if(mines >= 3 && key == false) {
+//                key = true;
+//                hudText3.setText("Key purchased");
+//                System.out.println("Key purchased");      
+//            }else if(key == true) {
+//                hudText3.setText("Key alrady purchased!");
+//                System.out.println("Key alrady purchased!");
+//            }else {
+//                hudText3.setText("Not enough mines collected for key");
+//                System.out.println("not enough mines collected for key.");
+//            }
+//            
+//        }
+//      }
+//       
+//       else if (binding.equals("Shoot") && !value == true) {
+//           if(cannonballs > 0) {
+//              //  shoot=true;
+//                if (results2.size() > 0) {      
+//          closest2 = results2.getClosestCollision();
+//          float dist1 = closest2.getDistance();
+//          
+//
+//          if(dist1<150 && dist1>10){
+//                System.out.println("Mine destroyed");
+//                createExplosion();
+//                explosives.detachChild(closest2.getGeometry());
+//                
+//            Box explosiveMineCollected = new Box(new Vector3f(0f,0f,0f),1,1,1);
+//            Geometry geoGuiBoxRed=new Geometry("Inventory Cube",explosiveMineCollected);
+//            Material matRed = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+//            matRed.setColor("Color", ColorRGBA.Red);
+//            geoGuiBoxRed.setMaterial(matRed);
+//
+//             guiNode.attachChild(geoGuiBoxRed);
+//             geoGuiBoxRed.setLocalScale(10);
+//             geoGuiBoxRed.setLocalTranslation(settings.getWidth()-40,displacement,0);
+//             displacement+=30;
+//             if (displacement>=settings.getHeight()){
+//                 displacement=10;
+//                 //column=40;
+//             }
+//             
+//             credit+=10;
+//             explosiveMines++;
+//             //stamina-=1000;
+//             System.out.println("Credits: " + credit);
+//          }
+//
+//          }
+//                
+//            }
+//        }
+//        
+//       else if (binding.equals("Char1") && !value == true) {
+//                 if(character.getPhysicsLocation().distance(cassio.getPhysicsLocation()) < 10 && (Math.acos(vis3)* FastMath.RAD_TO_DEG) < 60) {
+//                     if(credit >= 10){
+//                     hudText3.setText("you bought 10 bananas");
+//                     //System.out.println("you bought 10 bananas");
+//                     bananas += 10;
+//                     credit -= 10;
+//                         System.out.println(credit);
+//                     }else {
+//                         hudText3.setText("Sorry! you don't have enough credits.");
+//                         //System.out.println("Sorry! you don't have enough credits.");
+//                     }
+//                 }
+//              }
+//       else if(binding.equals("CharB") && !value == true) {
 //                if(character.getPhysicsLocation().distance(cassio.getPhysicsLocation()) < 10 && (Math.acos(vis3)* FastMath.RAD_TO_DEG) < 60) {
 //                    if(credit >= 10){
 //                        System.out.println("you bought 10 cannoballs");
@@ -991,9 +1354,29 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
 //                        System.out.println("Sorry! you don't have enough credits.");
 //                    }
 //                }
-                
-            }
-         }
+//                
+//            }
+//            
+//           else if(binding.equals("bananas") && !value == true) {
+//                if(bananas > 0 && monkeyOnMe == true) {
+//                    bananas--;
+//                    MonEating = true;
+//                }else {
+//                    System.out.println("Monkey needs bananas and you dont have any.");
+//                }
+////                if(character.getPhysicsLocation().distance(cassio.getPhysicsLocation()) < 10 && (Math.acos(vis3)* FastMath.RAD_TO_DEG) < 60) {
+////                    if(credit >= 10){
+////                        System.out.println("you bought 10 cannoballs");
+////                        credit -= 10;
+////                        cannonballs += 10;
+////                        System.out.println(credit);
+////                    }else {
+////                        System.out.println("Sorry! you don't have enough credits.");
+////                    }
+////                }
+//                
+//            }
+//         }
     
     private void setupAnimationController() {
         animationControl = model.getControl(AnimControl.class);
@@ -1064,4 +1447,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
 //            }
 //        });
 //    }
-}
+ 
+    
+    }
+
