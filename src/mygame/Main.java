@@ -382,20 +382,27 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         }
         
         if(level == false) {
-          results = new CollisionResults();
-          Ray ray = new Ray(character.getPhysicsLocation(), character.getViewDirection());
-          collectables.collideWith(ray, results);
+          //results = new CollisionResults();
+          //Ray ray = new Ray(character.getPhysicsLocation(), character.getViewDirection());
+          //collectables.collideWith(ray, results);
           
           
-                    if (results.size() > 0) {
-          closest = results.getClosestCollision();
-          float distance = closest.getDistance();
-            if(distance < 15) {
+//                    if (results.size() > 0) {
+          //closest = results.getClosestCollision();
+//          float distance = closest.getDistance();
+//            if(distance < 15) {
+                
+               for(Spatial s:collectables.getChildren()) {
+                    if(character.getPhysicsLocation().distance(s.getLocalTranslation()) < 5) {
+                        
+                    collectables.detachChild(s);
+                   
+               
                 hudTextinfo.setText("Mine Collected");
                 System.out.println("Mine collected");
                 mines++;
                 System.out.println(mines);
-                collectables.detachChild(closest.getGeometry());
+                //collectables.detachChild(closest.getGeometry());
                 
             Box guiBox = new Box(new Vector3f(0f,0f,0f),1,1,1);
             Geometry geoGuiBox;
@@ -411,15 +418,17 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
                 
                 credit += 10;
                 System.out.println("credits : " + credit);
-            }
-         }else {
-                timer2 += tpf;
-                System.out.println(timer2);
-                if(timer2 > 2){
-                    hudTextinfo.setText("");
-                    timer2 = 0;
-                }
-             }
+            //}
+//         }else {
+//                timer2 += tpf;
+//                System.out.println(timer2);
+//                if(timer2 > 2){
+//                    hudTextinfo.setText("");
+//                    timer2 = 0;
+//                }
+//             }
+        }
+               }
         }
         if(level == true) {            
           results2 = new CollisionResults();
