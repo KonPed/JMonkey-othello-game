@@ -47,6 +47,7 @@ import com.jme3.scene.shape.Quad;
 import com.jme3.scene.shape.Sphere;
 import com.jme3.system.AppSettings;
 import com.jme3.texture.Texture;
+import com.jme3.ui.Picture;
 import com.jme3.util.SkyFactory;
 
 /**
@@ -153,6 +154,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         hudText6.setLocalTranslation(400, hudText6.getLineHeight()+350, 0); // position
         guiNode.attachChild(hudText6);
             
+        
         setupKeys();
         createTerrain();
         //createTerrain2();
@@ -394,9 +396,9 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
                 
                for(Spatial s:collectables.getChildren()) {
                     if(character.getPhysicsLocation().distance(s.getLocalTranslation()) < 5) {
-                        
+                     animationChannel.setAnim("Dodge",2.1f);   
                     collectables.detachChild(s);
-                   
+                    
                
                 hudTextinfo.setText("Mine Collected");
                 System.out.println("Mine collected");
@@ -475,9 +477,10 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
             
                     if(MonEating == true) {
                         eatingTimer += tpf;
-                        //System.out.println(eatingTimer);
+                        System.out.println(eatingTimer);
                         if(eatingTimer > 10) {
                             MonEating = false;
+                            eatingTimer = 0;
                         }
                     }
                     
@@ -546,7 +549,16 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         sceneModel2.addControl(landscape2);
         getPhysicsSpace().add(sceneModel2);
         rootNode.attachChild(sceneModel2);
-        
+        }
+    
+    private void createKey() {
+        Picture pic = new Picture("HUD Picture");
+        pic.setImage(assetManager, "Textures/key/key_1_.png", true);
+        pic.setWidth(settings.getWidth()/25);
+        pic.setHeight(settings.getHeight()/25);
+        pic.setPosition(settings.getWidth()/1.2f, settings.getHeight()/11f);
+        guiNode.attachChild(pic);
+
     }
     
     private void createSky() {
@@ -1021,7 +1033,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
              if (character.getPhysicsLocation().distance(vendor.getPhysicsLocation())<10 && (Math.acos(vis2)*FastMath.RAD_TO_DEG)<60){
                  if (key==false){
                      if(mines>=3){
-                    
+                        createKey();
                     //System.out.println("Key purchased");
                          hudText2.setText("Key obtained");
                     key=true;
@@ -1403,7 +1415,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         animationControl4 = model4.getControl(AnimControl.class);
         animationControl4.addListener(this);
         animationChannel4 = animationControl4.createChannel();
-        animationChannel4.setAnim("Idle");
+        //animationChannel4.setAnim("Idle");
     }
     
     public void onAnimChange(AnimControl control, AnimChannel channel, String animName) {
