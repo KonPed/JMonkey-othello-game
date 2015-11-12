@@ -85,7 +85,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     private Vector3f otoLocation, sinbadLocation, Oto2SinBad, cassioLocation, monkeyLocation, Oto2cassio, Oto2monkey, walkMonkey;
     DirectionalLight dl;
     PointLight pl;
-    BitmapText hudText, hudText2, hudText3, hudText4, hudTextinfo, hudText6;
+    BitmapText hudText, hudTextVendor, hudTextCassio, hudTextMonkey, hudTextinfo, hudTextGameOver, hudTextSTWarning;
     ParticleEmitter fire,explosion;
     CollisionResult closest2, closest;
     CollisionResults results, results2;
@@ -111,35 +111,41 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
        //     String text2[]=text1.split(":");
             
 //          hudText.setText("STAMINA: "+ stamina);             // the text
-            hudText.setLocalTranslation(0, settings.getHeight()-420, 0); // position
+            hudText.setLocalTranslation(settings.getWidth()/1000f, settings.getHeight()/2.4f, 0); // position
             guiNode.attachChild(hudText);
             
-            hudText2 = new BitmapText(guiFont, false);
-            hudText2.setSize(guiFont.getCharSet().getRenderedSize());
-            hudText2.setColor(ColorRGBA.Yellow);
+            hudTextVendor = new BitmapText(guiFont, false);
+            hudTextVendor.setSize(guiFont.getCharSet().getRenderedSize());
+            hudTextVendor.setColor(ColorRGBA.Yellow);
             
-            hudText2.setLocalTranslation(470, hudText2.getLineHeight()+680, 0);
-            guiNode.attachChild(hudText2);
+            hudTextVendor.setLocalTranslation(settings.getWidth()/2.7f, settings.getHeight()/1.15f, 0);
+            guiNode.attachChild(hudTextVendor);
             
-            hudText3 = new BitmapText(guiFont, false);
-            hudText3.setSize(guiFont.getCharSet().getRenderedSize());
-            hudText3.setColor(ColorRGBA.Yellow);
+            hudTextCassio = new BitmapText(guiFont, false);
+            hudTextCassio.setSize(guiFont.getCharSet().getRenderedSize());
+            hudTextCassio.setColor(ColorRGBA.Yellow);
             
-            hudText3.setLocalTranslation(470, hudText2.getLineHeight()+680, 0);
-            guiNode.attachChild(hudText3);
+            hudTextCassio.setLocalTranslation(settings.getWidth()/2.7f, settings.getHeight()/1.15f, 0);
+            guiNode.attachChild(hudTextCassio);
             
-            hudText4 = new BitmapText(guiFont, false);
-            hudText4.setSize(guiFont.getCharSet().getRenderedSize());
-            hudText4.setColor(ColorRGBA.Red);
+            hudTextMonkey = new BitmapText(guiFont, false);
+            hudTextMonkey.setSize(30);
+            hudTextMonkey.setColor(ColorRGBA.Red);
             
-            hudText4.setLocalTranslation(575, hudText2.getLineHeight()+660, 0);
-            guiNode.attachChild(hudText4);
+            hudTextMonkey.setLocalTranslation(settings.getWidth()/2.4f, settings.getHeight()/1.08f, 0);
+            guiNode.attachChild(hudTextMonkey);
             
             hudTextinfo = new BitmapText(guiFont, false);
             hudTextinfo.setSize(guiFont.getCharSet().getRenderedSize());
             hudTextinfo.setColor(ColorRGBA.Yellow);
-            hudTextinfo.setLocalTranslation(470, hudText2.getLineHeight()+680, 0);
+            hudTextinfo.setLocalTranslation(settings.getWidth()/2.16f, settings.getHeight()/2.8f, 0);
             guiNode.attachChild(hudTextinfo);
+            
+            hudTextSTWarning = new BitmapText(guiFont, false);
+            hudTextSTWarning.setSize(45);
+            hudTextSTWarning.setColor(ColorRGBA.Red);
+            hudTextSTWarning.setLocalTranslation(settings.getWidth()/1.6f, settings.getHeight()/4f, 0);
+            guiNode.attachChild(hudTextSTWarning);
             
 //             hudText6 = new BitmapText(guiFont, false);
 //            hudText6.setSize(guiFont.getCharSet().getRenderedSize());
@@ -147,12 +153,11 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
 //            hudText6.setLocalTranslation(470, hudText2.getLineHeight()+680, 0);
 //            guiNode.attachChild(hudText6);
             
-            hudText6 = new BitmapText(guiFont, false);        
-       //  hudText4.setSize(guiFont.getCharSet().getRenderedSize());
-        hudText6.setSize(100);      // font size
-        hudText6.setColor(ColorRGBA.Red);                             // font color
-        hudText6.setLocalTranslation(400, hudText6.getLineHeight()+350, 0); // position
-        guiNode.attachChild(hudText6);
+        hudTextGameOver = new BitmapText(guiFont, false);        
+        hudTextGameOver.setSize(100);      // font size
+        hudTextGameOver.setColor(ColorRGBA.Red);                             // font color
+        hudTextGameOver.setLocalTranslation(settings.getWidth()/3.1f, settings.getHeight()/1.4f, 0); // position
+        guiNode.attachChild(hudTextGameOver);
             
         
         setupKeys();
@@ -200,7 +205,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
 //            guiNode.attachChild(hudText);
       if(gameOver == false) {
             if(character.getPhysicsLocation().y > -5 && character.getPhysicsLocation().y < 0) {
-              if(character.getPhysicsLocation().z<-109.8 && character.getPhysicsLocation().x>40 && character.getPhysicsLocation().x<80){
+              if(character.getPhysicsLocation().z<-110 && character.getPhysicsLocation().x>40 && character.getPhysicsLocation().x<100){
                     level = true;
                     character.setPhysicsLocation(new Vector3f(40,10,0));
                     cassio.setPhysicsLocation(new Vector3f(5.06524f, 1, -12.185619f));
@@ -221,8 +226,15 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         stamina -= tpf;
         stamina();
         
-        if(stamina < 0){
+        // Game Over when Stamina reaches 0.
+        if(stamina <= 0){
             stamina = 0;
+            rootNode.detachAllChildren();;
+           hudTextGameOver.setText("You died!\nGame Over");
+        }
+        // Warning message when stamina low
+        if(stamina < 800){
+           hudTextSTWarning.setText("Warning!\nstamina low\nbuy some food!");
         }
         
        
@@ -308,7 +320,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         if(character.getPhysicsLocation().distance(vendor.getPhysicsLocation())<10 && (Math.acos(vis2)* FastMath.RAD_TO_DEG) < 60 && away == true) {
              away = false;
             animationChannel2.setAnim("SliceVertical");
-            hudText2.setText("Hello Stranger!!! Press 1 to buy a torch so you can see in the night!\n"
+            hudTextVendor.setText("Hello Stranger!!! Press 1 to buy a torch so you can see in the night!\n"
                     + "Press 2 to get the key for the door\n"
                     + "or 3 to buy some food!");
             
@@ -316,7 +328,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
            }
         if(character.getPhysicsLocation().distance(vendor.getPhysicsLocation()) >= 10 || (Math.acos(vis2)* FastMath.RAD_TO_DEG) > 60) {
            away = true;
-           hudText2.setText("");
+           hudTextVendor.setText("");
         }
         
         cassioLocation = cassio.getPhysicsLocation();
@@ -330,14 +342,14 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         if(character.getPhysicsLocation().distance(cassio.getPhysicsLocation()) < 10 && (Math.acos(vis3)* FastMath.RAD_TO_DEG) < 60 && awayFromCassio == true) {
              awayFromCassio = false;
             animationChannel3.setAnim("SliceVertical");
-            hudText3.setText("Hello im cassio!!! Please press 1 to buy bananas!\n"
+            hudTextCassio.setText("Hello im cassio!!! Please press 1 to buy bananas!\n"
                     + "or 2 to buy cannonballs!");
             //System.out.println("Hello im cassio!!! Please press 1 to buy bananas!");
             
         }
         if(character.getPhysicsLocation().distance(cassio.getPhysicsLocation()) >= 10 || (Math.acos(vis3)* FastMath.RAD_TO_DEG) > 60) {
            awayFromCassio = true;
-           hudText3.setText("");
+           hudTextCassio.setText("");
         }
         
         monkeyLocation = monkey.getPhysicsLocation();
@@ -353,7 +365,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
             monkeyOnMe = true;
             pursuit = true;
             animationChannel4.setAnim("Walk");
-            hudText4.setText("Haha i got you!!!");
+            hudTextMonkey.setText("Haha i got you!!!");
             //System.out.println("Haha i got you!!!");
             //motionControl.stop();
             
@@ -380,7 +392,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
             
             monkey.setWalkDirection(walkMonkey);
       }else {
-            hudText4.setText("");
+            hudTextMonkey.setText("");
         }
         
         if(level == false) {
@@ -487,7 +499,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         }
        
       }else {
-          hudText6.setText("You died!\nGame Over");
+          hudTextGameOver.setText("You died!\nGame Over");
           rootNode.detachAllChildren();
       }
           
@@ -971,16 +983,16 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
                          
                          torch=true;
                         credit-=20;
-                        hudText2.setText("Torch purchased!\nPress F to turn it on or off");
+                        hudTextVendor.setText("Torch purchased!\nPress F to turn it on or off");
 
                      }
                      else
-                       hudText2.setText("You need 40 credits to buy a torch");
+                       hudTextVendor.setText("You need 40 credits to buy a torch");
                        // System.out.println("You need 40 credits to buy a torch");
                  }
                  else
                     // System.out.println("You have already purchased a torch");
-                      hudText2.setText("You have already purchased a torch");
+                      hudTextVendor.setText("You have already purchased a torch");
                  
              }else if (character.getPhysicsLocation().distance(cassio.getPhysicsLocation())<10 && (Math.acos(vis3)*FastMath.RAD_TO_DEG)<60){
    
@@ -989,11 +1001,11 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
                         credit-=10;
                         bananas+=10;
                         
-                        hudText2.setText("10 Bananas purchased!");
+                        hudTextCassio.setText("10 Bananas purchased!");
                        
   
                      }else
-                        hudText2.setText(" Sorry!\nYou dont have\nenough credits to buy bananas");
+                        hudTextCassio.setText(" Sorry!\nYou dont have\nenough credits to buy bananas");
 
             }
        }
@@ -1035,15 +1047,15 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
                      if(mines>=3){
                         createKey();
                     //System.out.println("Key purchased");
-                         hudText2.setText("Key obtained");
+                         hudTextVendor.setText("Key obtained");
                     key=true;
 
                      }
                      else
-                       hudText2.setText("Not enough mines collected.\n  16 required");
+                       hudTextVendor.setText("Not enough mines collected.\n  3 required");
                  }
                  else
-                     hudText2.setText("You already have the key");
+                     hudTextVendor.setText("You already have the key");
                  }
              else if (character.getPhysicsLocation().distance(cassio.getPhysicsLocation())<10 && (Math.acos(vis3)*FastMath.RAD_TO_DEG)<60){
                  
@@ -1052,12 +1064,12 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
                     cannonballs+=100;
                     credit-=20;
                     
-                    hudText2.setText("100 cannonballs purchased!");
+                    hudTextCassio.setText("100 cannonballs purchased!");
                    
 
                      }
                      else
-                        hudText2.setText("You need 20 credits to\n  buy cannonballs");
+                        hudTextCassio.setText("You need 20 credits to\n  buy cannonballs");
              }
  
         }
@@ -1160,12 +1172,12 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
                          
                         credit-=20;
                         food++;
-                        hudText2.setText("Food purchased!\nPress E to consume");
+                        hudTextVendor.setText("Food purchased!\nPress E to consume");
                      
 
                      }
                      else
-                        hudText2.setText("You need 20 credits to buy food");
+                        hudTextVendor.setText("You need 20 credits to buy food");
                  }
                 
              }
