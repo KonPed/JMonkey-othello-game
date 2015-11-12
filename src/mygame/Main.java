@@ -65,8 +65,8 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         
     }
     
-    private int  displacement2  = 10;
-    private int displacement = 10;
+    private int  displacement2  = 0;
+    private int displacement = 0;
     private int credit = 0;
     private int stamina = 5000;
     private int cannonballs, bananas, mines,explosiveMines, food = 0;
@@ -86,7 +86,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     private Vector3f otoLocation, sinbadLocation, Oto2SinBad, cassioLocation, monkeyLocation, Oto2cassio, Oto2monkey, walkMonkey;
     DirectionalLight dl;
     PointLight pl;
-    BitmapText hudText, hudTextVendor, hudTextCassio, hudTextMonkey, hudTextinfo, hudTextGameOver, hudTextSTWarning ,hudTextWin;
+    BitmapText hudText, hudTextVendor, hudTextCassio, hudTextMonkey, hudTextinfo, hudTextGameOver, hudTextSTWarning ,hudTextWin,hudTextCannons;
     ParticleEmitter fire,explosion;
     CollisionResult closest2, closest;
     CollisionResults results, results2;
@@ -148,6 +148,11 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
             hudTextSTWarning.setLocalTranslation(settings.getWidth()/1.6f, settings.getHeight()/4f, 0);
             guiNode.attachChild(hudTextSTWarning);
             
+            hudTextCannons = new BitmapText(guiFont, false);
+            hudTextCannons.setSize(guiFont.getCharSet().getRenderedSize());
+            hudTextCannons.setColor(ColorRGBA.Red);
+            hudTextCannons.setLocalTranslation(settings.getWidth()/2.16f, settings.getHeight()/3.1f, 0);
+            guiNode.attachChild(hudTextCannons);
 //             hudText6 = new BitmapText(guiFont, false);
 //            hudText6.setSize(guiFont.getCharSet().getRenderedSize());
 //            hudText6.setColor(ColorRGBA.Yellow);
@@ -169,7 +174,6 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         
         setupKeys();
         createTerrain();
-        //createTerrain2();
         createSky();
         createLight();
         createCharacter();
@@ -205,6 +209,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
                 System.out.println(timer2);
                 if(timer2 > 2){
                     hudTextinfo.setText("");
+                    hudTextCannons.setText("");
                     timer2 = 0;
                 }
 //             
@@ -250,8 +255,10 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
            hudTextGameOver.setText("You died!\nGame Over");
         }
         // Warning message when stamina below 800!
-        else if(stamina < 800){
+        else if(stamina <= 800){
            hudTextSTWarning.setText("Warning!\nstamina low\nbuy some food!");
+        } else if (stamina >= 800) {
+           hudTextSTWarning.setText("");
         }
         
         if(mines >= 10 && explosiveMines >= 10 && gameOver == false) {
@@ -439,18 +446,19 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
                 mines++;
                 System.out.println(mines);
                 //collectables.detachChild(closest.getGeometry());
-                
-            Box guiBox = new Box(new Vector3f(0f,0f,0f),1,1,1);
-            Geometry geoGuiBox;
-            geoGuiBox = new Geometry("Inventory Cube",guiBox);
-             Material mat1 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-            mat1.setColor("Color",ColorRGBA.Blue);
-            geoGuiBox.setMaterial(mat1);
-            
-             guiNode.attachChild(geoGuiBox);
-             geoGuiBox.setLocalScale(10);
-             geoGuiBox.setLocalTranslation(settings.getWidth()-21,displacement,0);
-                displacement+=30;
+                createMineImg();
+                //displacement += 30;
+//            Box guiBox = new Box(new Vector3f(0f,0f,0f),1,1,1);
+//            Geometry geoGuiBox;
+//            geoGuiBox = new Geometry("Inventory Cube",guiBox);
+//             Material mat1 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+//            mat1.setColor("Color",ColorRGBA.Blue);
+//            geoGuiBox.setMaterial(mat1);
+//            
+//             guiNode.attachChild(geoGuiBox);
+//             geoGuiBox.setLocalScale(10);
+//             geoGuiBox.setLocalTranslation(settings.getWidth()-21,displacement,0);
+//                displacement+=30;
                 
                 credit += 10;
                 System.out.println("credits : " + credit);
@@ -600,11 +608,33 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     }
     
     private void createKey() {
-        Picture pic = new Picture("HUD Picture");
+        Picture pic = new Picture("Key Picture");
         pic.setImage(assetManager, "Textures/key/key_1_.png", true);
         pic.setWidth(settings.getWidth()/25);
         pic.setHeight(settings.getHeight()/25);
         pic.setPosition(settings.getWidth()/1.2f, settings.getHeight()/11f);
+        guiNode.attachChild(pic);
+
+    }
+    
+    private void createMineImg() {
+        Picture pic = new Picture("Mine Picture");
+        pic.setImage(assetManager, "Textures/Mines/mine.png", true);
+        pic.setWidth(settings.getWidth()/30);
+        pic.setHeight(settings.getHeight()/23);
+        pic.setPosition(settings.getWidth()/1.079f, settings.getHeight()/50f+displacement);
+        displacement += 35;
+        guiNode.attachChild(pic);
+//settings.getHeight()/50f
+    }
+    
+    private void createExplMineImg() {
+        Picture pic = new Picture("Explosive mine Picture");
+        pic.setImage(assetManager, "Textures/Mines/ex_mine.png", true);
+        pic.setWidth(settings.getWidth()/20);
+        pic.setHeight(settings.getHeight()/25);
+        pic.setPosition(settings.getWidth()/1.045f, settings.getHeight()/50f+displacement2);
+        displacement2 += 35;
         guiNode.attachChild(pic);
 
     }
@@ -839,9 +869,9 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     float height = settings.getHeight();
     Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
     mat.setColor("Color",ColorRGBA.White);
-    Geometry cubeHUD = makeCube("Vertical Gui Line", 0f,0f,0f);
+    Geometry cubeHUD = makeCube("Vertical last Line", 0f,0f,0f);
     cubeHUD.setMaterial(mat);
-    cubeHUD.setLocalTranslation(width-3,0,0);
+    cubeHUD.setLocalTranslation(width-2,0,0);
     cubeHUD.setLocalScale(3,height,0);
     guiNode.attachChild(cubeHUD);
     //guiNode.addLight(sun2);
@@ -856,9 +886,9 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     float height = settings.getHeight();
     Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
     mat.setColor("Color",ColorRGBA.DarkGray);
-    Geometry cubeHUD = makeCube("Vertical Gui Line", 0f,0f,0f);
+    Geometry cubeHUD = makeCube("Vertical middle Line", 0f,0f,0f);
     cubeHUD.setMaterial(mat);
-    cubeHUD.setLocalTranslation(width-40f,0,0);
+    cubeHUD.setLocalTranslation(width/1.040f,0,0);
     cubeHUD.setLocalScale(2,height,1);
     guiNode.attachChild(cubeHUD);
    // guiNode.addLight(sun2);
@@ -873,15 +903,17 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     float height = settings.getHeight();
     Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
     mat.setColor("Color",ColorRGBA.White);
-    Geometry cubeHUD = makeCube("Vertical Gui Line", 0f,0f,0f);
+    Geometry cubeHUD = makeCube("Vertical first Line", 0f,0f,0f);
     cubeHUD.setMaterial(mat);
-    cubeHUD.setLocalTranslation(width-80f,0,0);
+    cubeHUD.setLocalTranslation(width/1.080f,0,0);
     cubeHUD.setLocalScale(3,height,1);
     guiNode.attachChild(cubeHUD);
    // guiNode.addLight(sun2);
     rootNode.attachChild(guiNode);
     
     }
+    
+    
     
     protected Geometry makeCube(String name, float x, float y, float z) {
     Box box = new Box(new Vector3f(x, y, z), 1, 1, 1);
@@ -1146,17 +1178,17 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
                 createExplosion();
                 explosives.detachChild(closest2.getGeometry());
                 hudTextinfo.setText("Mine has been disarmed");
-                
-            Box guiBoxRed = new Box(new Vector3f(0f,0f,0f),1,1,1);
-            Geometry geoGuiBoxRed=new Geometry("Inventory Cube",guiBoxRed);
-            Material matRed = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-            matRed.setColor("Color", ColorRGBA.Red);
-            geoGuiBoxRed.setMaterial(matRed);
-
-             guiNode.attachChild(geoGuiBoxRed);
-             geoGuiBoxRed.setLocalScale(10);
-             geoGuiBoxRed.setLocalTranslation(settings.getWidth()-60,displacement2,0);
-             displacement2+=30;
+                createExplMineImg();
+//            Box guiBoxRed = new Box(new Vector3f(0f,0f,0f),1,1,1);
+//            Geometry geoGuiBoxRed=new Geometry("Inventory Cube",guiBoxRed);
+//            Material matRed = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+//            matRed.setColor("Color", ColorRGBA.Red);
+//            geoGuiBoxRed.setMaterial(matRed);
+//
+//             guiNode.attachChild(geoGuiBoxRed);
+//             geoGuiBoxRed.setLocalScale(10);
+//             geoGuiBoxRed.setLocalTranslation(settings.getWidth()-60,displacement2,0);
+//             displacement2+=30;
 //             if (displacement>=settings.getHeight()){
 //                 displacement=30;
 //                 //column=40;
@@ -1169,8 +1201,9 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
              //System.out.println("Credits: "+credits);
           }else hudTextinfo.setText("");
 
-          }
-              cannonballs--;   
+                }
+              
+                cannonballs--;   
                
           
        
@@ -1192,9 +1225,12 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
                 rootNode.attachChild(bulletg);
                 getPhysicsSpace().add(bulletNode);
                 cannonballs--;*/
-                
+       
+              
+            } else {
+                 hudTextCannons.setText("You don't have enough cannonballs");
             }
-            }
+         }
         
         else if (binding.equals("CharDodge") && !value==true){
             animationChannel.setAnim("Dodge",0.05f);
