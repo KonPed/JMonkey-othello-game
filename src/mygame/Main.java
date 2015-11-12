@@ -49,6 +49,7 @@ import com.jme3.system.AppSettings;
 import com.jme3.texture.Texture;
 import com.jme3.ui.Picture;
 import com.jme3.util.SkyFactory;
+import sun.invoke.empty.Empty;
 
 /**
  * test
@@ -68,9 +69,9 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     private int displacement = 10;
     private int credit = 0;
     private int stamina = 5000;
-    private int cannonballs, bananas, mines, food = 0;
-    private int explosiveMines;
+    private int cannonballs, bananas, mines,explosiveMines, food = 0;
     private Spatial sceneModel, sceneModel2, teapot;
+    public Spatial ex;
     private RigidBodyControl landscape, landscape2;
     private CharacterControl character, vendor, cassio, monkey;
     private Node model, model2, model3, model4, collectables, vaultNode, explosives;
@@ -85,7 +86,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     private Vector3f otoLocation, sinbadLocation, Oto2SinBad, cassioLocation, monkeyLocation, Oto2cassio, Oto2monkey, walkMonkey;
     DirectionalLight dl;
     PointLight pl;
-    BitmapText hudText, hudTextVendor, hudTextCassio, hudTextMonkey, hudTextinfo, hudTextGameOver, hudTextSTWarning;
+    BitmapText hudText, hudTextVendor, hudTextCassio, hudTextMonkey, hudTextinfo, hudTextGameOver, hudTextSTWarning ,hudTextWin;
     ParticleEmitter fire,explosion;
     CollisionResult closest2, closest;
     CollisionResults results, results2;
@@ -111,7 +112,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
        //     String text2[]=text1.split(":");
             
 //          hudText.setText("STAMINA: "+ stamina);             // the text
-            hudText.setLocalTranslation(settings.getWidth()/1000f, settings.getHeight()/2.4f, 0); // position
+            hudText.setLocalTranslation(settings.getWidth()/1000f, settings.getHeight()/1.9f, 0); // position
             guiNode.attachChild(hudText);
             
             hudTextVendor = new BitmapText(guiFont, false);
@@ -158,6 +159,12 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         hudTextGameOver.setColor(ColorRGBA.Red);                             // font color
         hudTextGameOver.setLocalTranslation(settings.getWidth()/3.1f, settings.getHeight()/1.4f, 0); // position
         guiNode.attachChild(hudTextGameOver);
+        
+        hudTextWin = new BitmapText(guiFont, false);        
+        hudTextWin.setSize(100);      // font size
+        hudTextWin.setColor(ColorRGBA.Green);                             // font color
+        hudTextWin.setLocalTranslation(settings.getWidth()/3.1f, settings.getHeight()/1.4f, 0); // position
+        guiNode.attachChild(hudTextWin);
             
         
         setupKeys();
@@ -192,7 +199,14 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
       
         //System.out.println(character.getPhysicsLocation());
         //System.out.println(cam.getDirection());
-        
+                
+                //clearing the hudTexrInfo
+                timer2 += tpf;
+                System.out.println(timer2);
+                if(timer2 > 2){
+                    hudTextinfo.setText("");
+                    timer2 = 0;
+                }
 //             
 //            hudText = new BitmapText(guiFont, false);        
 //            hudText.setSize(guiFont.getCharSet().getRenderedSize());      // font size
@@ -221,7 +235,10 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
             }
         pl.setPosition(character.getPhysicsLocation());
         
-        hudText.setText("\n\nCREDITS: "+credit+"\n\nBANANAS: "+bananas+"\n\nCANNONBALLS: "+cannonballs+"\n\nFOOD: "+food+ "\n\nSTAMINA: "+ stamina);
+        hudText.setText("\n\nCREDITS: "+credit+"\n\nBANANAS: "+bananas+
+                "\n\nCANNONBALLS: "+cannonballs+"\n\nFOOD: "+food+ 
+                "\n\nSTAMINA: "+ stamina+ "\n\nMines: "+mines+
+                "\n\nExplosives "+explosiveMines);
         
         stamina -= tpf;
         stamina();
@@ -232,9 +249,13 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
             rootNode.detachAllChildren();;
            hudTextGameOver.setText("You died!\nGame Over");
         }
-        // Warning message when stamina low
-        if(stamina < 800){
+        // Warning message when stamina below 800!
+        else if(stamina < 800){
            hudTextSTWarning.setText("Warning!\nstamina low\nbuy some food!");
+        }
+        
+        if(mines >= 10 && explosiveMines >= 10 && gameOver == false) {
+            hudTextWin.setText("You win!");
         }
         
        
@@ -406,10 +427,11 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
 //          float distance = closest.getDistance();
 //            if(distance < 15) {
                 
-               for(Spatial s:collectables.getChildren()) {
-                    if(character.getPhysicsLocation().distance(s.getLocalTranslation()) < 5) {
+               for(Spatial col:collectables.getChildren()) {
+                    if(character.getPhysicsLocation().distance(col.getLocalTranslation()) < 5) {
                      animationChannel.setAnim("Dodge",2.1f);   
-                    collectables.detachChild(s);
+                    collectables.detachChild(col);
+                    
                     
                
                 hudTextinfo.setText("Mine Collected");
@@ -432,6 +454,17 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
                 
                 credit += 10;
                 System.out.println("credits : " + credit);
+                
+//                if () {
+//                timer2 += tpf;
+//                System.out.println(timer2);
+//                if(timer2 > 2){
+//                    hudTextinfo.setText("");
+//                    timer2 = 0;
+//                }
+//             }
+                
+                
             //}
 //         }else {
 //                timer2 += tpf;
@@ -448,36 +481,50 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
           results2 = new CollisionResults();
           Ray ray2 = new Ray(character.getPhysicsLocation(), character.getViewDirection());
           explosives.collideWith(ray2, results2);
+          
+          
+          
+          for(Spatial ex:explosives.getChildren()){
+            if(character.getPhysicsLocation().distance(ex.getLocalTranslation()) < 5) {
+                hudTextinfo.setText("Ouch!!!");
+                stamina -= 1000;
+                System.out.println("Ouch!!!");
+                createExplosion2(ex);
+                explosives.detachChild(ex);
+            }
+          }
                     if (results2.size() > 0) {
           closest2 = results2.getClosestCollision();
           float distance2 = closest2.getDistance();
-            if(distance2 <= 150 && distance2 >= 15){
+          
+          
+            if(distance2 <= 100 && distance2 >= 15){
                 hudTextinfo.setText("target on sight.");
                 System.out.println("target on sight.");
                   }else hudTextinfo.setText("");
-            if(distance2 < 15) {
+            if(distance2 < 5) {
                 hudTextinfo.setText("Ouch!!!");
-                stamina -= 1500;
+                stamina -= 1000;
                 System.out.println("Ouch!!!");
                 createExplosion();
                 explosives.detachChild(closest2.getGeometry());
                 
-                Box guiBox = new Box(new Vector3f(0f,0f,0f),1,1,1);
-            Geometry geoGuiBox;
-            geoGuiBox = new Geometry("Inventory Cube",guiBox);
-             Material mat1 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-            mat1.setColor("Color",ColorRGBA.Red);
-            geoGuiBox.setMaterial(mat1);
-            
-             guiNode.attachChild(geoGuiBox);
-             geoGuiBox.setLocalScale(10);
-             geoGuiBox.setLocalTranslation(settings.getWidth()-60,displacement2,0);
-                displacement2+=30;
-                
-                credit += 20;
+//                Box guiBox = new Box(new Vector3f(0f,0f,0f),1,1,1);
+//            Geometry geoGuiBox;
+//            geoGuiBox = new Geometry("Inventory Cube",guiBox);
+//             Material mat1 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+//            mat1.setColor("Color",ColorRGBA.Red);
+//            geoGuiBox.setMaterial(mat1);
+//            
+//             guiNode.attachChild(geoGuiBox);
+//             geoGuiBox.setLocalScale(10);
+//             geoGuiBox.setLocalTranslation(settings.getWidth()-60,displacement2,0);
+//                displacement2+=30;
+//                
+//                credit += 20;
                 System.out.println("credits : " + credit);
                 
-                       }
+            }
                     }else {
                              timer2 += tpf;
                              System.out.println(timer2);
@@ -551,17 +598,6 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         
         rootNode.attachChild(sceneModel);
     }
-    
-    private void createTerrain2() {
-        sceneModel2 = assetManager.loadModel("Scenes/wildhouse/main.j3o");
-        sceneModel2.setLocalScale(0.5f);
-        sceneModel2.rotate(Quaternion.ZERO);
-        CollisionShape sceneShape = CollisionShapeFactory.createMeshShape((Node) sceneModel2);
-        landscape2 = new RigidBodyControl(sceneShape, 0);
-        sceneModel2.addControl(landscape2);
-        getPhysicsSpace().add(sceneModel2);
-        rootNode.attachChild(sceneModel2);
-        }
     
     private void createKey() {
         Picture pic = new Picture("HUD Picture");
@@ -683,6 +719,28 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     explosion.setHighLife(3f);
     explosion.getParticleInfluencer().setVelocityVariation(0.3f);
     explosion.setLocalTranslation(closest2.getGeometry().getLocalTranslation());
+    rootNode.attachChild(explosion);
+    }
+    
+    public void createExplosion2(Spatial ex){
+    explosion = new ParticleEmitter("Emitter", ParticleMesh.Type.Triangle, 30);
+    Material mat_red = new Material(assetManager, 
+            "Common/MatDefs/Misc/Particle.j3md");
+    mat_red.setTexture("Texture", assetManager.loadTexture(
+            "Effects/Explosion/flame.png"));
+    explosion.setMaterial(mat_red);
+    explosion.setImagesX(2); 
+    explosion.setImagesY(2); // 2x2 texture animation
+    explosion.setEndColor(  new ColorRGBA(1f, 0f, 0f, 1f));   // red
+    explosion.setStartColor(new ColorRGBA(1f, 1f, 0f, 0.5f)); // yellow
+    explosion.getParticleInfluencer().setInitialVelocity(new Vector3f(0, 2, 0));
+    explosion.setStartSize(0.5f);
+    explosion.setEndSize(0.2f);
+    explosion.setGravity(0, 0, 0);
+    explosion.setLowLife(1f);
+    explosion.setHighLife(3f);
+    explosion.getParticleInfluencer().setVelocityVariation(0.3f);
+    explosion.setLocalTranslation(ex.getLocalTranslation());
     rootNode.attachChild(explosion);
     }
     
