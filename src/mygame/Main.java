@@ -76,7 +76,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     private int credit = 0;
     private int stamina = 5000;
     private int cannonballs, bananas, mines,explosiveMines, food = 0;
-    private Spatial sceneModel, sceneModel2, torchModel;
+    private Spatial sceneModel, sceneModel2,barrel, torchModel;
     public Spatial ex;
     private RigidBodyControl landscape, landscape2;
     private CharacterControl character, vendor, cassio, monkey;
@@ -620,6 +620,15 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         rootNode.attachChild(sceneModel);
     }
     
+    private Spatial createBarrels(Vector3f loc) {
+        barrel = assetManager.loadModel("Models/barrel/barrel.j3o");
+        barrel.setLocalScale(2f);
+        rootNode.attachChild(barrel);
+        barrel.setLocalTranslation(loc);
+        
+        return barrel;
+    }
+    
     private void createKey() {
         Picture pic = new Picture("Key Picture");
         pic.setImage(assetManager, "Textures/key/key_1_.png", true);
@@ -917,7 +926,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
             // randomize 3D coordinates
             Vector3f loc = new Vector3f(
                     FastMath.nextRandomInt(-75, 215),
-                    2,
+                    1,
                     FastMath.nextRandomInt(-100, 80));
             
             explosives.attachChild(createExplosiveMine("mine",loc));
@@ -926,15 +935,16 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     }
     
     private void makemines() {
+        
         collectables = new Node("Collectables");
         for (int i = 0; i < 20; i++) {
             // randomize 3D coordinates
             Vector3f loc = new Vector3f(
                     FastMath.nextRandomInt(-75, 215),
-                    2,
+                    0,
                     FastMath.nextRandomInt(-100, 80));
             
-            collectables.attachChild(createMine("mine",loc));
+            collectables.attachChild(createBarrels(loc));
         }
         rootNode.attachChild(collectables);
     }
