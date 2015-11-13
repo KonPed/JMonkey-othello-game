@@ -177,8 +177,8 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         hudTextWin.setLocalTranslation(settings.getWidth()/3.1f, settings.getHeight()/1.4f, 0); // position
         guiNode.attachChild(hudTextWin);
        
-        //doCinematics();
         
+        food();
         setupKeys();
         createTerrain();
         createSky();
@@ -201,6 +201,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         
         setupAnimationController();
         
+        //doCinematics();
     }
 
     
@@ -621,7 +622,36 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         pic.setHeight(settings.getHeight()/25);
         pic.setPosition(settings.getWidth()/1.2f, settings.getHeight()/11f);
         guiNode.attachChild(pic);
-
+    }
+    
+    private void food() {
+        Picture banana = new Picture("banana Picture");
+        banana.setImage(assetManager, "Textures/imges/banana.png", true);
+        banana.setWidth(settings.getWidth()/25);
+        banana.setHeight(settings.getHeight()/20);
+        banana.setPosition(settings.getWidth()/14f, settings.getHeight()/2.65f);
+        guiNode.attachChild(banana);
+        
+        Picture food = new Picture("banana Picture");
+        food.setImage(assetManager, "Textures/imges/food.png", true);
+        food.setWidth(settings.getWidth()/25);
+        food.setHeight(settings.getHeight()/17);
+        food.setPosition(settings.getWidth()/14f, settings.getHeight()/3.95f);
+        guiNode.attachChild(food);
+        
+        Picture cannonballs = new Picture("cannonballs Picture");
+        cannonballs.setImage(assetManager, "Textures/imges/cannonballs.png", true);
+        cannonballs.setWidth(settings.getWidth()/30);
+        cannonballs.setHeight(settings.getHeight()/20);
+        cannonballs.setPosition(settings.getWidth()/10f, settings.getHeight()/3.2f);
+        guiNode.attachChild(cannonballs);
+        
+        Picture coins = new Picture("coins Picture");
+        coins.setImage(assetManager, "Textures/imges/coin.png", true);
+        coins.setWidth(settings.getWidth()/30);
+        coins.setHeight(settings.getHeight()/20);
+        coins.setPosition(settings.getWidth()/14f, settings.getHeight()/2.33f);
+        guiNode.attachChild(coins);
     }
     
     private void createMineImg() {
@@ -1593,65 +1623,65 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
 //        });
 //    }
  
-    private void doCinematics() {
-        cinematic = new Cinematic(rootNode, 20); // Cinematic duration
-        stateManager.attach(cinematic);
-        createCameraMotion();
-
-        // Camera Event
-        cinematic.addCinematicEvent(0, cameraMotionEvent);
-
-        // Sound Event
-        cinematic.addCinematicEvent(1, new SoundEvent("Sounds/Environment/Nature.ogg", LoopMode.Loop));
-        cinematic.addCinematicEvent(5.1f, new SoundEvent("Sounds" + "/Effects/Beep.ogg", 1));
-
-        //Animation Event
-        //cinematic.addCinematicEvent(2, new AnimationEvent(model, "Walk", LoopMode.Loop));
-
-        //Camera Event
-        //cinematic.activateCamera(4, "topView");
-        cinematic.activateCamera(3, "aroundCam");
-
-        cinematic.addListener(new CinematicEventListener() {
-            public void onPlay(CinematicEvent cinematic) {
-                chaseCam.setEnabled(false);
-                System.out.println("play");
-            }
-
-            public void onPause(CinematicEvent cinematic) {
-                System.out.println("pause");
-            }
-
-            public void onStop(CinematicEvent cinematic) {
-                chaseCam.setEnabled(true);
-                //fade.setValue(1);
-                System.out.println("stop");
-            }
-        });
-        cinematic.play();
-    }
-
-    private void createCameraMotion() {
-        CameraNode camNode2 = cinematic.bindCamera("aroundCam", cam);
-
-        path = new MotionPath();
-        path.setCycle(true);
-            path.addWayPoint(new Vector3f(20, 3, 0));
-            path.addWayPoint(new Vector3f(0, 3, 20));
-            path.addWayPoint(new Vector3f(-20, 3, 0));
-           path.addWayPoint(new Vector3f(0, 3, -20));
-//        path.addWayPoint(new Vector3f(90, 24, -90));
-//        path.addWayPoint(new Vector3f(0, 24, 90));
-//        path.addWayPoint(new Vector3f(-90, 24, 0));
-//        path.addWayPoint(new Vector3f(0, 24, -150));
-        path.enableDebugShape(assetManager, rootNode);
-
-        path.setCurveTension(0.83f);
-        cameraMotionEvent = new MotionEvent(camNode2, path);
-        cameraMotionEvent.setLoopMode(LoopMode.Loop);
-        //cameraMotionEvent.setLookAt(model.getWorldTranslation(), Vector3f.UNIT_Y);
-        //cameraMotionEvent.setDirectionType(MotionEvent.Direction.LookAt);
-    }
+//    private void doCinematics() {
+//        cinematic = new Cinematic(rootNode, 40); // Cinematic duration
+//        stateManager.attach(cinematic);
+//        createCameraMotion();
+//
+//        // Camera Event
+//        cinematic.addCinematicEvent(1, cameraMotionEvent);
+//
+//        // Sound Event
+//        cinematic.addCinematicEvent(1, new SoundEvent("Sounds/Environment/Nature.ogg", LoopMode.Loop));
+//        cinematic.addCinematicEvent(5.1f, new SoundEvent("Sounds" + "/Effects/Beep.ogg", 1));
+//
+//        //Animation Event
+//        cinematic.addCinematicEvent(2, new AnimationEvent(model, "Walk", LoopMode.Loop));
+//
+//        //Camera Event
+//        //cinematic.activateCamera(4, "topView");
+//        cinematic.activateCamera(3, "aroundCam");
+//
+//        cinematic.addListener(new CinematicEventListener() {
+//            public void onPlay(CinematicEvent cinematic) {
+//                chaseCam.setEnabled(false);
+//                System.out.println("play");
+//            }
+//
+//            public void onPause(CinematicEvent cinematic) {
+//                System.out.println("pause");
+//            }
+//
+//            public void onStop(CinematicEvent cinematic) {
+//                chaseCam.setEnabled(true);
+//                //fade.setValue(1);
+//                System.out.println("stop");
+//            }
+//        });
+//        cinematic.play();
+//    }
+//
+//    private void createCameraMotion() {
+//        CameraNode camNode2 = cinematic.bindCamera("aroundCam", cam);
+//
+//        path = new MotionPath();
+//        path.setCycle(true);
+//            path.addWayPoint(new Vector3f(20, 3, 0));
+//            path.addWayPoint(new Vector3f(0, 3, 20));
+//            path.addWayPoint(new Vector3f(-20, 3, 0));
+//           path.addWayPoint(new Vector3f(0, 3, -20));
+////        path.addWayPoint(new Vector3f(90, 24, -90));
+////        path.addWayPoint(new Vector3f(0, 24, 90));
+////        path.addWayPoint(new Vector3f(-90, 24, 0));
+////        path.addWayPoint(new Vector3f(0, 24, -150));
+//
+//        path.setCurveTension(0.83f);
+//        cameraMotionEvent = new MotionEvent(camNode2, path);
+//        cameraMotionEvent.setLoopMode(LoopMode.Loop);
+//        //camNode2.lookAt(teapot.getWorldTranslation(), Vector3f.UNIT_Y);
+//        //cameraMotionEvent.setDirectionType(MotionEvent.Direction.LookAt);
+//   
+//    }
     
     }
 
