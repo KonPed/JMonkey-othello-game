@@ -4,6 +4,7 @@ import com.jme3.animation.AnimChannel;
 import com.jme3.animation.AnimControl;
 import com.jme3.animation.AnimEventListener;
 import com.jme3.animation.LoopMode;
+import com.jme3.animation.SkeletonControl;
 import com.jme3.app.SimpleApplication;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.PhysicsSpace;
@@ -32,6 +33,7 @@ import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.input.controls.MouseAxisTrigger;
 import com.jme3.input.controls.MouseButtonTrigger;
+import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.PointLight;
 import com.jme3.material.Material;
@@ -74,7 +76,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     private int credit = 0;
     private int stamina = 5000;
     private int cannonballs, bananas, mines,explosiveMines, food = 0;
-    private Spatial sceneModel, sceneModel2, teapot;
+    private Spatial sceneModel, sceneModel2, torchModel;
     public Spatial ex;
     private RigidBodyControl landscape, landscape2;
     private CharacterControl character, vendor, cassio, monkey;
@@ -89,6 +91,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     private AnimChannel animationChannel, animationChannel2, animationChannel3, animationChannel4;
     private Vector3f otoLocation, sinbadLocation, Oto2SinBad, cassioLocation, monkeyLocation, Oto2cassio, Oto2monkey, walkMonkey;
     DirectionalLight dl;
+    AmbientLight al;
     PointLight pl;
     BitmapText hudText, hudTextVendor, hudTextCassio, hudTextMonkey, hudTextinfo, hudTextGameOver, hudTextSTWarning ,hudTextWin,hudTextCannons;
     ParticleEmitter fire,explosion;
@@ -97,7 +100,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     private MotionPath path;
     private MotionEvent motionControl;
     float PROXIMITY = 4.0f;
-    private Node sceneNode;
+    private Node sceneNode, n;
     RigidBodyControl mine_phy;
     private Cinematic cinematic;
     private CinematicEvent cameraMotionEvent;
@@ -201,6 +204,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         
         setupAnimationController();
         
+        
         //doCinematics();
     }
 
@@ -247,6 +251,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
                   gameOver = true;
             }
         pl.setPosition(character.getPhysicsLocation());
+        
         
         hudText.setText("\n\nCredits: "+credit+"\n\nBananas: "+bananas+
                 "\n\nCannonballs: "+cannonballs+"\n\nFood: "+food+ 
@@ -618,10 +623,19 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     private void createKey() {
         Picture pic = new Picture("Key Picture");
         pic.setImage(assetManager, "Textures/key/key_1_.png", true);
-        pic.setWidth(settings.getWidth()/25);
-        pic.setHeight(settings.getHeight()/25);
+        pic.setWidth(settings.getWidth()/20);
+        pic.setHeight(settings.getHeight()/20);
         pic.setPosition(settings.getWidth()/1.2f, settings.getHeight()/11f);
         guiNode.attachChild(pic);
+    }
+    
+    private void createtorch() {
+        Picture torchimg = new Picture("coins Picture");
+        torchimg.setImage(assetManager, "Textures/imges/torch.png", true);
+        torchimg.setWidth(settings.getWidth()/18);
+        torchimg.setHeight(settings.getHeight()/11);
+        torchimg.setPosition(settings.getWidth()/1.28f, settings.getHeight()/13.35f);
+        guiNode.attachChild(torchimg);
     }
     
     private void food() {
@@ -696,19 +710,25 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         dl.setDirection(direction);
         dl.setColor(new ColorRGBA(1f, 1f, 1f, 1.0f));
         rootNode.addLight(dl);
+        
+        al = new AmbientLight();
+        al.setColor(ColorRGBA.Yellow);
+        //al.setColor(new ColorRGBA(255,255,0,0.2f));
+        
     }
     
     private void createPointLight() {
         pl = new PointLight();
-        pl.setRadius(30);
+        pl.setRadius(20);
         pl.setColor(ColorRGBA.Yellow);
+        
     }
     
     private void nightLight() {
          Vector3f direction = new Vector3f(0.5348667f, -0.6787754f, -0.50317144f).normalizeLocal();
          dl = new DirectionalLight();
          dl.setDirection(direction);
-         ColorRGBA nightColor = new ColorRGBA(.06f, .06f, .2f, 1);
+         ColorRGBA nightColor = new ColorRGBA(.04f, .04f, .2f, 1);
          dl.setColor(nightColor);
          rootNode.addLight(dl);
         }
@@ -722,7 +742,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
      }
     
     private void createCharacter() {
-        CapsuleCollisionShape capsule = new CapsuleCollisionShape(2f, 2f, 1);
+        CapsuleCollisionShape capsule = new CapsuleCollisionShape(2f, 1f, 1);
         character = new CharacterControl(capsule, 2.75f);
         model = (Node) assetManager.loadModel("Models/Oto/Oto.mesh.xml");
         model.setLocalScale(0.4f);
@@ -737,11 +757,17 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     }
     
     private void createTorch() {
-        teapot = assetManager.loadModel("Models/Teapot/Teapot.obj");
-        Material mat_default = new Material( assetManager, "Common/MatDefs/Misc/ShowNormals.j3md");
-        teapot.setMaterial(mat_default);
-        teapot.setLocalTranslation(-4, 3f, 1);
-        model.attachChild(teapot);
+        torchModel = assetManager.loadModel("Models/torch/torch1.j3o");
+        //Material mat_default = new Material( assetManager, "Common/MatDefs/Misc/ShowNormals.j3md");
+        //torchModel.setMaterial(mat_default);
+        torchModel.setLocalScale(0.5f);
+        torchModel.rotate(3f, 0f, 0f);
+        torchModel.setLocalTranslation(1.09f, -4f, 0.4f);
+        
+        SkeletonControl skeletonControl = model.getControl(SkeletonControl.class);
+        n = skeletonControl.getAttachmentsNode("hand.right");
+        n.attachChild(torchModel);
+        //model.attachChild(torchModel);
     }
     
     private void createCassio() {
@@ -761,19 +787,23 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
             "Common/MatDefs/Misc/Particle.j3md");
     mat_red.setTexture("Texture", assetManager.loadTexture(
             "Effects/Explosion/flame.png"));
+    SkeletonControl skeletonControl = model.getControl(SkeletonControl.class);
+        n = skeletonControl.getAttachmentsNode("hand.right");
+        n.attachChild(fire);
     fire.setMaterial(mat_red);
     fire.setImagesX(2); 
     fire.setImagesY(2); // 2x2 texture animation
     fire.setEndColor(  new ColorRGBA(1f, 0f, 0f, 1f));   // red
     fire.setStartColor(new ColorRGBA(1f, 1f, 0f, 0.5f)); // yellow
     fire.getParticleInfluencer().setInitialVelocity(new Vector3f(0, 2, 0));
-    fire.setStartSize(1.5f);
+    fire.setStartSize(0.8f);
     fire.setEndSize(0.1f);
     fire.setGravity(0, 0, 0);
     fire.setLowLife(1f);
     fire.setHighLife(3f);
     fire.getParticleInfluencer().setVelocityVariation(0.3f);
-    model.attachChild(fire);
+    fire.setLocalTranslation(1.54f, -8.5f, -0.75f);
+    //model.attachChild(fire);
     //rootNode.attachChild(fire);
     }
     
@@ -1117,7 +1147,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
              if (character.getPhysicsLocation().distance(vendor.getPhysicsLocation())<10 && (Math.acos(vis2)*FastMath.RAD_TO_DEG)<60){
                  if(torch==false){
                      if(credit>=20){
-                         
+                         createtorch();
                          torch=true;
                         credit-=20;
                         hudTextVendor.setText("Torch purchased!\nPress F to turn it on or off");
@@ -1153,14 +1183,16 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
                     createFire();   
                     createTorch();
                     rootNode.addLight(pl);
+                    model.addLight(al);
                     fireon=true;
                 }
             
             
                 else{
-                    model.detachChild(fire);
-                    model.detachChild(teapot);
+                    n.detachChild(fire);
+                    n.detachChild(torchModel);
                     rootNode.removeLight(pl);
+                    model.removeLight(al);
                     fireon=false;
                 }
             
