@@ -13,9 +13,14 @@ import com.jme3.bullet.collision.shapes.SphereCollisionShape;
 import com.jme3.bullet.control.CharacterControl;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.bullet.util.CollisionShapeFactory;
+import com.jme3.cinematic.Cinematic;
 import com.jme3.cinematic.MotionPath;
 import com.jme3.cinematic.MotionPathListener;
+import com.jme3.cinematic.events.AnimationEvent;
+import com.jme3.cinematic.events.CinematicEvent;
+import com.jme3.cinematic.events.CinematicEventListener;
 import com.jme3.cinematic.events.MotionEvent;
+import com.jme3.cinematic.events.SoundEvent;
 import com.jme3.collision.CollisionResult;
 import com.jme3.collision.CollisionResults;
 import com.jme3.effect.ParticleEmitter;
@@ -37,6 +42,7 @@ import com.jme3.math.Ray;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.queue.RenderQueue;
+import com.jme3.scene.CameraNode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
@@ -50,19 +56,17 @@ import com.jme3.texture.Texture;
 import com.jme3.ui.Picture;
 import com.jme3.util.SkyFactory;
 import sun.invoke.empty.Empty;
-
 /**
  * test
  * @author Paidarakis Konstantinos
  */
-public class Main extends SimpleApplication implements ActionListener,AnimEventListener{
+public class Main extends SimpleApplication implements ActionListener,AnimEventListener {
     
     private BulletAppState bulletAppState;
 
     public static void main(String[] args) {
         Main app = new Main();
         app.start();
-        
     }
     
     private int  displacement2  = 0;
@@ -95,6 +99,8 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     float PROXIMITY = 4.0f;
     private Node sceneNode;
     RigidBodyControl mine_phy;
+    private Cinematic cinematic;
+    private CinematicEvent cameraMotionEvent;
     
     @Override
     public void simpleInitApp() {
@@ -117,14 +123,14 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
             
             hudTextVendor = new BitmapText(guiFont, false);
             hudTextVendor.setSize(guiFont.getCharSet().getRenderedSize());
-            hudTextVendor.setColor(ColorRGBA.Yellow);
+            hudTextVendor.setColor(ColorRGBA.White);
             
             hudTextVendor.setLocalTranslation(settings.getWidth()/2.7f, settings.getHeight()/1.15f, 0);
             guiNode.attachChild(hudTextVendor);
             
             hudTextCassio = new BitmapText(guiFont, false);
             hudTextCassio.setSize(guiFont.getCharSet().getRenderedSize());
-            hudTextCassio.setColor(ColorRGBA.Yellow);
+            hudTextCassio.setColor(ColorRGBA.White);
             
             hudTextCassio.setLocalTranslation(settings.getWidth()/2.7f, settings.getHeight()/1.15f, 0);
             guiNode.attachChild(hudTextCassio);
@@ -170,7 +176,8 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         hudTextWin.setColor(ColorRGBA.Green);                             // font color
         hudTextWin.setLocalTranslation(settings.getWidth()/3.1f, settings.getHeight()/1.4f, 0); // position
         guiNode.attachChild(hudTextWin);
-            
+       
+        //doCinematics();
         
         setupKeys();
         createTerrain();
@@ -240,9 +247,9 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
             }
         pl.setPosition(character.getPhysicsLocation());
         
-        hudText.setText("\n\nCREDITS: "+credit+"\n\nBANANAS: "+bananas+
-                "\n\nCANNONBALLS: "+cannonballs+"\n\nFOOD: "+food+ 
-                "\n\nSTAMINA: "+ stamina+ "\n\nMines: "+mines+
+        hudText.setText("\n\nCredits: "+credit+"\n\nBananas: "+bananas+
+                "\n\nCannonballs: "+cannonballs+"\n\nFood: "+food+ 
+                "\n\nStamina: "+ stamina+ "\n\nMines: "+mines+
                 "\n\nExplosives "+explosiveMines);
         
         stamina -= tpf;
@@ -348,7 +355,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         if(character.getPhysicsLocation().distance(vendor.getPhysicsLocation())<10 && (Math.acos(vis2)* FastMath.RAD_TO_DEG) < 60 && away == true) {
              away = false;
             animationChannel2.setAnim("SliceVertical");
-            hudTextVendor.setText("Hello Stranger!!! Press 1 to buy a torch so you can see in the night!\n"
+            hudTextVendor.setText("Hello Stranger!!!\nPress 1 to buy a torch so you can see in the night!\n"
                     + "Press 2 to get the key for the door\n"
                     + "or 3 to buy some food!");
             
@@ -370,7 +377,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         if(character.getPhysicsLocation().distance(cassio.getPhysicsLocation()) < 10 && (Math.acos(vis3)* FastMath.RAD_TO_DEG) < 60 && awayFromCassio == true) {
              awayFromCassio = false;
             animationChannel3.setAnim("SliceVertical");
-            hudTextCassio.setText("Hello im cassio!!! Please press 1 to buy bananas!\n"
+            hudTextCassio.setText("Hello im cassio!!!\nPlease press 1 to buy bananas!\n"
                     + "or 2 to buy cannonballs!");
             //System.out.println("Hello im cassio!!! Please press 1 to buy bananas!");
             
@@ -640,7 +647,17 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     }
     
     private void createSky() {
-        rootNode.attachChild(SkyFactory.createSky(assetManager, "Textures/Sky/Bright/BrightSky.dds", false));
+                Texture[] skyTex = new Texture[6];
+                skyTex[0] = assetManager.loadTexture("Textures/Sky/Lagoon/lagoon_west.jpg");
+                skyTex[1] = assetManager.loadTexture("Textures/Sky/Lagoon/lagoon_east.jpg");
+                skyTex[2] = assetManager.loadTexture("Textures/Sky/Lagoon/lagoon_north.jpg");
+                skyTex[3] = assetManager.loadTexture("Textures/Sky/Lagoon/lagoon_south.jpg");
+                skyTex[4] = assetManager.loadTexture("Textures/Sky/Lagoon/lagoon_up.jpg");
+                skyTex[5] = assetManager.loadTexture("Textures/Sky/Lagoon/lagoon_down.jpg");
+
+                Spatial sky = SkyFactory.createSky(assetManager, skyTex[0], skyTex[1], skyTex[2], skyTex[3], skyTex[4], skyTex[5]);
+                rootNode.attachChild(sky);
+        //rootNode.attachChild(SkyFactory.createSky(assetManager, "Textures/Sky/Bright/BrightSky.dds", false));
     }
     
     private void createLight() {
@@ -1535,6 +1552,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         }
     }
     
+    
 //    private void setupMotionPath() {
 //        path = new MotionPath();
 //        path.addWayPoint(new Vector3f(FastMath.nextRandomInt(-70,200), 1f,FastMath.nextRandomInt(-100,75)));
@@ -1575,6 +1593,65 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
 //        });
 //    }
  
+    private void doCinematics() {
+        cinematic = new Cinematic(rootNode, 20); // Cinematic duration
+        stateManager.attach(cinematic);
+        createCameraMotion();
+
+        // Camera Event
+        cinematic.addCinematicEvent(0, cameraMotionEvent);
+
+        // Sound Event
+        cinematic.addCinematicEvent(1, new SoundEvent("Sounds/Environment/Nature.ogg", LoopMode.Loop));
+        cinematic.addCinematicEvent(5.1f, new SoundEvent("Sounds" + "/Effects/Beep.ogg", 1));
+
+        //Animation Event
+        //cinematic.addCinematicEvent(2, new AnimationEvent(model, "Walk", LoopMode.Loop));
+
+        //Camera Event
+        //cinematic.activateCamera(4, "topView");
+        cinematic.activateCamera(3, "aroundCam");
+
+        cinematic.addListener(new CinematicEventListener() {
+            public void onPlay(CinematicEvent cinematic) {
+                chaseCam.setEnabled(false);
+                System.out.println("play");
+            }
+
+            public void onPause(CinematicEvent cinematic) {
+                System.out.println("pause");
+            }
+
+            public void onStop(CinematicEvent cinematic) {
+                chaseCam.setEnabled(true);
+                //fade.setValue(1);
+                System.out.println("stop");
+            }
+        });
+        cinematic.play();
+    }
+
+    private void createCameraMotion() {
+        CameraNode camNode2 = cinematic.bindCamera("aroundCam", cam);
+
+        path = new MotionPath();
+        path.setCycle(true);
+            path.addWayPoint(new Vector3f(20, 3, 0));
+            path.addWayPoint(new Vector3f(0, 3, 20));
+            path.addWayPoint(new Vector3f(-20, 3, 0));
+           path.addWayPoint(new Vector3f(0, 3, -20));
+//        path.addWayPoint(new Vector3f(90, 24, -90));
+//        path.addWayPoint(new Vector3f(0, 24, 90));
+//        path.addWayPoint(new Vector3f(-90, 24, 0));
+//        path.addWayPoint(new Vector3f(0, 24, -150));
+        path.enableDebugShape(assetManager, rootNode);
+
+        path.setCurveTension(0.83f);
+        cameraMotionEvent = new MotionEvent(camNode2, path);
+        cameraMotionEvent.setLoopMode(LoopMode.Loop);
+        //cameraMotionEvent.setLookAt(model.getWorldTranslation(), Vector3f.UNIT_Y);
+        //cameraMotionEvent.setDirectionType(MotionEvent.Direction.LookAt);
+    }
     
     }
 
