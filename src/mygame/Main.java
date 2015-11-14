@@ -86,7 +86,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     private ChaseCamera chaseCam;
     private boolean left,right,up,down, level;
     private boolean key, torch, pursuit, monkeyOnMe, MonEating, fireon, gameOver, gameWin = false;
-    private boolean awayFromCassio, away, awayFromMonkey = true;
+    private boolean awayFromCassio, away, awayFromMonkey, day = true;
     Vector3f walkDirection = new Vector3f();
     private float airTime, vis2, vis3, vis4, timer, timer2, eatingTimer, x;
     private AnimControl animationControl,animationControl2, animationControl3, animationControl4;
@@ -107,12 +107,13 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     RigidBodyControl mine_phy;
     private Cinematic cinematic;
     private CinematicEvent cameraMotionEvent;
-    private AudioNode gun, nature;
+    private AudioNode gun, nature, foot, rooster, hello;
     
     @Override
     public void simpleInitApp() {
        bulletAppState = new BulletAppState();
        stateManager.attach(bulletAppState);
+       
        
        setDisplayFps(false);
        setDisplayStatView(false);
@@ -298,6 +299,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
          x = 0.35f;
         // System.out.println(rootNode.);
          afternoonLight();
+         day = true;
          //camDir = cam.getDirection().clone().multLocal(0.2f); //speed
          //camLeft = cam.getLeft().clone().multLocal(0.2f);
         } else if (timer > 100 && timer <= 150) {
@@ -307,10 +309,16 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
          //camDir = cam.getDirection().clone().multLocal(0.1f); //speed
          //camLeft = cam.getLeft().clone().multLocal(0.1f);
         }else if (timer < 50) {
+            if(day == true) {
+            rooster.play();
+            day = false;
+        }
          rootNode.removeLight(dl);
          createLight();
          x = 0.25f;
-        }
+          }
+        
+        
           System.out.println(timer);
         
 //        hudText = new BitmapText(guiFont,false);
@@ -369,6 +377,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         
        
         if(character.getPhysicsLocation().distance(vendor.getPhysicsLocation())<10 && (Math.acos(vis2)* FastMath.RAD_TO_DEG) < 60 && away == true) {
+            hello.playInstance();
              away = false;
             animationChannel2.setAnim("SliceVertical");
             hudTextVendor.setText("Hello Stranger!!!\nPress 1 to buy a torch so you can see in the night!\n"
@@ -391,7 +400,8 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         
        
         if(character.getPhysicsLocation().distance(cassio.getPhysicsLocation()) < 10 && (Math.acos(vis3)* FastMath.RAD_TO_DEG) < 60 && awayFromCassio == true) {
-             awayFromCassio = false;
+            hello.playInstance();
+            awayFromCassio = false;
             animationChannel3.setAnim("SliceVertical");
             hudTextCassio.setText("Hello im cassio!!!\nPlease press 1 to buy bananas!\n"
                     + "or 2 to buy cannonballs!");
@@ -1147,24 +1157,28 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     
     public void onAction(String binding, boolean value, float tpf) {
         if (binding.equals("CharLeft")) {
+            foot.play();
             if (value) {
                 left = true;
             } else {
                 left = false;
             }
         } else if (binding.equals("CharRight")) {
+            foot.play();
             if (value) {
                 right = true;
             } else {
                 right = false;
             }
         } else if (binding.equals("CharUp")) {
+            foot.play();
             if (value) {
                 up = true;
             } else {
                 up = false;
             }
         } else if (binding.equals("CharDown")) {
+            foot.play();
             if (value) {
                 down = true;
             } else {
@@ -1747,16 +1761,41 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     gun = new AudioNode(assetManager, "Sounds/Effects/gun2.wav", false);
     gun.setPositional(false);
     gun.setLooping(false);
-    gun.setVolume(2);
+    gun.setVolume(0.5f);
     rootNode.attachChild(gun);
  
     /* nature sound - keeps playing in a loop. */
-    nature = new AudioNode(assetManager, "Sound/Environment/Ocean Waves.ogg", true);
-    nature.setLooping(true);  // activate continuous playing
-    nature.setPositional(true);   
-    nature.setVolume(3);
+    nature = new AudioNode(assetManager, "Sounds/Environment/rainforest.wav", true);
+    nature.setLooping(false);  // activate continuous playing
+    nature.setPositional(false);   
+    nature.setVolume(30);
     rootNode.attachChild(nature);
     nature.play(); // play continuously!
+    
+    foot = new AudioNode(assetManager, "Sounds/Effects/Foot steps.ogg", false);
+    foot.setPositional(false);
+    foot.setLooping(false);
+    foot.setVolume(0.5f);
+    rootNode.attachChild(foot);
+    
+    rooster = new AudioNode(assetManager, "Sounds/Environment/rooster.wav", false);
+    rooster.setPositional(false);
+    rooster.setLooping(false);
+    rooster.setVolume(0.5f);
+    rootNode.attachChild(rooster);
+    
+    rooster = new AudioNode(assetManager, "Sounds/Environment/rooster.wav", false);
+    rooster.setPositional(false);
+    rooster.setLooping(false);
+    rooster.setVolume(0.5f);
+    rootNode.attachChild(rooster);
+    
+    hello = new AudioNode(assetManager, "Sounds/Effects/hello.wav", false);
+    hello.setPositional(false);
+    hello.setLooping(false);
+    hello.setVolume(0.5f);
+    rootNode.attachChild(hello);
+    
   }
     }
 
