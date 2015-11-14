@@ -6,6 +6,7 @@ import com.jme3.animation.AnimEventListener;
 import com.jme3.animation.LoopMode;
 import com.jme3.animation.SkeletonControl;
 import com.jme3.app.SimpleApplication;
+import com.jme3.audio.AudioNode;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.PhysicsSpace;
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
@@ -106,6 +107,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     RigidBodyControl mine_phy;
     private Cinematic cinematic;
     private CinematicEvent cameraMotionEvent;
+    private AudioNode gun, nature;
     
     @Override
     public void simpleInitApp() {
@@ -205,6 +207,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         //setupMotionPath();
         //motionControl.play();
         
+        initAudio();
         setupAnimationController();
         
         
@@ -426,13 +429,14 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
             if (monkeyLocation.distance(otoLocation) < PROXIMITY) {
                 if(MonEating ==  false) {
                     stamina -= 20;
+                    hudTextMonkey.setText("Hit!");
                     System.out.println("hit!");
                 }
                 walkMonkey = new Vector3f(0f, 0f, 0f);
                 pursuit = false;
                 //animationChannel4.setAnim("Idle");
             } else {
-                walkMonkey = otoLocation.subtract(monkeyLocation).multLocal(0.01f);
+                walkMonkey = otoLocation.subtract(monkeyLocation).multLocal(0.009f);
                 monkey.setViewDirection(walkMonkey.mult(-1f));
                 animationChannel4.setAnim("Walk");
               }
@@ -888,9 +892,9 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         CapsuleCollisionShape capsule = new CapsuleCollisionShape(0.6f, 0.6f);
         monkey = new CharacterControl(capsule, 2.75f);
         model4 = (Node) assetManager.loadModel("Models/monkeyExport/Jaime.j3o");
-        model4.setLocalScale(6f);
+        model4.setLocalScale(2f);
         model4.addControl(monkey);
-        //monkey.setPhysicsLocation(new Vector3f(FastMath.nextRandomInt(-70,200), 2.01976f, FastMath.nextRandomInt(-100,75)));
+        monkey.setPhysicsLocation(new Vector3f(FastMath.nextRandomInt(-70,200), 2.01976f, FastMath.nextRandomInt(-100,75)));
         //rootNode.attachChild(model4);
         getPhysicsSpace().add(monkey);
     }
@@ -1224,10 +1228,10 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
             }
         else if (binding.equals("rotateDoor") && !value==true) {
             if (character.getPhysicsLocation().distance(vaultNode.getLocalTranslation())<20){
-                //if (key==true)
+                if (key==true)
                     vaultNode.rotate(0,1.6f,0);
-                //else
-                    hudTextinfo.setText("You need a key\n to open the door!");
+                else
+                    hudTextinfo.setText("You need a key\n to open that door!");
             
             }
            
@@ -1267,8 +1271,9 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
  
         }
         else if (binding.equals("Shoot") && !value==true){
-                
+                 
             if(cannonballs!=0){
+                gun.playInstance();
               //  shoot=true;
                 if (results2.size() > 0) {      
           closest2 = results2.getClosestCollision();
@@ -1278,7 +1283,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
                   //ex.removeFromParent();
            // }
                   
-            
+               
                 //System.out.println("Mine destroyed");
                 createExplosion();
                 explosives.detachChild(closest2.getGeometry());
@@ -1315,9 +1320,9 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
        
              
             
-            /*     Sphere bullet=new Sphere(32,32,0.2f,true,false);
-             Geometry bulletg = new Geometry("bullet", bullet);
-             Material matBullet = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+                Sphere bullet=new Sphere(32,32,0.2f,true,false);
+                Geometry bulletg = new Geometry("bullet", bullet);
+                 Material matBullet = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
                 bulletg.setMaterial(matBullet);
                // bulletg.setShadowMode(RenderQueue.ShadowMode.CastAndReceive);
                 bulletg.setLocalTranslation(character.getPhysicsLocation().add(.5f,0,0));
@@ -1325,12 +1330,10 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
                 SphereCollisionShape bulletCollisionShape = new SphereCollisionShape(0.75f);
                 RigidBodyControl bulletNode = new RigidBodyControl(bulletCollisionShape, 1);
                 bulletNode.setLinearVelocity(character.getViewDirection().mult(25));
-                bulletNode.setPhysicsLocation(character.getPhysicsLocation().add(5,5,5));
-                
+                bulletNode.setPhysicsLocation(character.getViewDirection());
                 bulletg.addControl(bulletNode);
                 rootNode.attachChild(bulletg);
                 getPhysicsSpace().add(bulletNode);
-                cannonballs--;*/
        
               
             } else {
@@ -1345,13 +1348,11 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         else if (binding.equals("bananas") && !value==true){
             if(bananas!=0){
                  if(monkeyOnMe==true){
-                     
-                     
+                     hudTextMonkey.setText("Yum Yum!");
                      //System.out.println("You have given monkey a banana");
-                     hudText.setText("You have given monkey a banana");
                      bananas--;
                      //System.out.println("You now have "+bananas+ "bananas");
-                     hudText.setText("Now you have "+bananas+ "bananas");
+                     hudTextinfo.setText("Now you have "+bananas+ "bananas");
                    //  pursuit=false;
                      MonEating=true;
                  }  
@@ -1741,6 +1742,21 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
 //        //cameraMotionEvent.setDirectionType(MotionEvent.Direction.LookAt);
 //   
 //    }
-    
+    private void initAudio() {
+    /* gun shot sound is to be triggered by a mouse click. */
+    gun = new AudioNode(assetManager, "Sounds/Effects/gun2.wav", false);
+    gun.setPositional(false);
+    gun.setLooping(false);
+    gun.setVolume(2);
+    rootNode.attachChild(gun);
+ 
+    /* nature sound - keeps playing in a loop. */
+    nature = new AudioNode(assetManager, "Sound/Environment/Ocean Waves.ogg", true);
+    nature.setLooping(true);  // activate continuous playing
+    nature.setPositional(true);   
+    nature.setVolume(3);
+    rootNode.attachChild(nature);
+    nature.play(); // play continuously!
+  }
     }
 
