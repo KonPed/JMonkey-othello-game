@@ -83,7 +83,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     private Node model, model2, model3, model4, collectables, vaultNode, explosives;
     private ChaseCamera chaseCam;
     private boolean left,right,up,down, level;
-    private boolean key, torch, pursuit, monkeyOnMe, MonEating, fireon, gameOver = false;
+    private boolean key, torch, pursuit, monkeyOnMe, MonEating, fireon, gameOver, gameWin = false;
     private boolean awayFromCassio, away, awayFromMonkey = true;
     Vector3f walkDirection = new Vector3f();
     private float airTime, vis2, vis3, vis4, timer, timer2, eatingTimer, x;
@@ -197,6 +197,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         makeInventory2();
         makeInventory3();
         createPointLight();
+        createAmbientLight();
         makewall();
         createDoor();
         //setupMotionPath();
@@ -234,7 +235,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
 //            hudText.setText("STAMINA: "+ stamina);             // the text
 //            hudText.setLocalTranslation(0, settings.getHeight(), 0); // position
 //            guiNode.attachChild(hudText);
-      if(gameOver == false) {
+      if(gameOver == false && gameWin == false) {
             if(character.getPhysicsLocation().y > -5 && character.getPhysicsLocation().y < 0) {
               if(character.getPhysicsLocation().z<-110 && character.getPhysicsLocation().x>40 && character.getPhysicsLocation().x<100){
                     level = true;
@@ -274,8 +275,8 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
            hudTextSTWarning.setText("");
         }
         
-        if(mines >= 10 && explosiveMines >= 10 && gameOver == false) {
-            hudTextWin.setText("You win!");
+        if(mines >= 5 && explosiveMines >= 5 && gameOver == false) {
+            gameWin = true;
         }
         
        
@@ -571,8 +572,14 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         }
        
       }else {
+          if (gameOver == true) {
           hudTextGameOver.setText("You died!\nGame Over");
           rootNode.detachAllChildren();
+          }else {
+             gameWin = true;
+            hudTextWin.setText("Congratulations!\nYou win!");
+            rootNode.detachAllChildren();
+          }
       }
           
         
@@ -723,18 +730,17 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         dl.setDirection(direction);
         dl.setColor(new ColorRGBA(1f, 1f, 1f, 1.0f));
         rootNode.addLight(dl);
-        
+    }
+    
+    private void createAmbientLight() {
         al = new AmbientLight();
         al.setColor(ColorRGBA.Yellow);
-        //al.setColor(new ColorRGBA(255,255,0,0.2f));
-        
     }
     
     private void createPointLight() {
         pl = new PointLight();
         pl.setRadius(20);
         pl.setColor(ColorRGBA.Yellow);
-        
     }
     
     private void nightLight() {
@@ -906,21 +912,21 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
   }
     
     public Geometry createExplosiveMine(String name, Vector3f loc) { 
-    //Dome mine = new Dome(Vector3f.ZERO, 2, 32, 1f,false);
-    Box mine = new Box(1f, 1f, 1f);
+    Dome mine = new Dome(Vector3f.ZERO, 4, 32, 1f,false);
+    //Box mine = new Box(1f, 1f, 1f);
     Geometry geo = new Geometry("Mine", mine);
     Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
-    mat.setTexture("NormalMap", assetManager.loadTexture("Textures/ColoredTex/Monkey.png"));
     //Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-    //mat.setColor("Color",ColorRGBA.White);
+    mat.setTexture("NormalMap", assetManager.loadTexture("Textures/Pebbles/Pebbles_normal.png"));
+  //mat.setColor("Color",ColorRGBA.White);
     geo.setLocalTranslation(loc);
     geo.setMaterial(mat);
-    geo.rotate(0, 0, 0.5f);
+    //geo.rotate(0, 0, 0.5f);
     //mine_phy = new RigidBodyControl(1f);
     
     //geo.addControl(mine_phy);
    // bulletAppState.getPhysicsSpace().add(mine_phy);
-    rootNode.attachChild(geo);
+    //rootNode.attachChild(geo);
     return geo;
   }
     
@@ -1199,10 +1205,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
                     rootNode.addLight(pl);
                     model.addLight(al);
                     fireon=true;
-                }
-            
-            
-                else{
+                }else{
                     n.detachChild(fire);
                     n.detachChild(torchModel);
                     rootNode.removeLight(pl);
