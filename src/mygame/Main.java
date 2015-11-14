@@ -37,6 +37,7 @@ import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.PointLight;
 import com.jme3.material.Material;
+import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
@@ -76,7 +77,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     private int credit = 0;
     private int stamina = 5000;
     private int cannonballs, bananas, mines,explosiveMines, food = 0;
-    private Spatial sceneModel, sceneModel2,barrel, torchModel;
+    private Spatial sceneModel, sceneModel2, plasma, torchModel, barrel;
     public Spatial ex;
     private RigidBodyControl landscape, landscape2;
     private CharacterControl character, vendor, cassio, monkey;
@@ -93,6 +94,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     DirectionalLight dl;
     AmbientLight al;
     PointLight pl;
+    Ray ray2;
     BitmapText hudText, hudTextVendor, hudTextCassio, hudTextMonkey, hudTextinfo, hudTextGameOver, hudTextSTWarning ,hudTextWin,hudTextCannons;
     ParticleEmitter fire,explosion;
     CollisionResult closest2, closest;
@@ -505,7 +507,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         }
         if(level == true) {            
           results2 = new CollisionResults();
-          Ray ray2 = new Ray(character.getPhysicsLocation(), character.getViewDirection());
+          ray2 = new Ray(character.getPhysicsLocation().add(0f,-2f,0f), character.getViewDirection());
           explosives.collideWith(ray2, results2);
           
           
@@ -522,6 +524,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
                     if (results2.size() > 0) {
           closest2 = results2.getClosestCollision();
           float distance2 = closest2.getDistance();
+          
           
           
             if(distance2 <= 100 && distance2 >= 15){
@@ -632,12 +635,12 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     }
     
     private Spatial createPlasma(Vector3f loc) {
-        barrel = assetManager.loadModel("Models/mineModel/plasma.j3o");
-        barrel.setLocalScale(0.5f);
+        plasma = assetManager.loadModel("Models/mineModel/plasma.j3o");
+        plasma.setLocalScale(0.5f);
         //rootNode.attachChild(barrel);
-        barrel.setLocalTranslation(loc);
+        plasma.setLocalTranslation(loc);
         
-        return barrel;
+        return plasma;
     }
     
     private void createKey() {
@@ -912,16 +915,20 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
   }
     
     public Geometry createExplosiveMine(String name, Vector3f loc) { 
-    Dome mine = new Dome(Vector3f.ZERO, 4, 32, 1f,false);
-    //Box mine = new Box(1f, 1f, 1f);
+    Dome mine = new Dome(Vector3f.ZERO, 2, 32, 1f,false);
+    //Box mine = new Box(1.5f, 1.5f, 1.5f);
     Geometry geo = new Geometry("Mine", mine);
     Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
     //Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-    mat.setTexture("NormalMap", assetManager.loadTexture("Textures/Pebbles/Pebbles_normal.png"));
-  //mat.setColor("Color",ColorRGBA.White);
+    //mat.setTexture("NormalMap", assetManager.loadTexture("Textures/ColoredTex/Monkey.png"));
+    //mat.setTexture("ColorMap", assetManager.loadTexture("Textures/ColoredTex/Monkey.png"));
+    mat.setColor("Diffuse",ColorRGBA.Red);
+    //mat.getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Alpha);  // activate transparency
+    //geo.setQueueBucket(RenderQueue.Bucket.Transparent);
+    mat.setBoolean("UseMaterialColors", true);
     geo.setLocalTranslation(loc);
     geo.setMaterial(mat);
-    //geo.rotate(0, 0, 0.5f);
+    //geo.rotate(0, 0, 0.8f);
     //mine_phy = new RigidBodyControl(1f);
     
     //geo.addControl(mine_phy);
@@ -936,7 +943,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
             // randomize 3D coordinates
             Vector3f loc = new Vector3f(
                     FastMath.nextRandomInt(-75, 215),
-                    2,
+                    0,
                     FastMath.nextRandomInt(-100, 80));
             
             explosives.attachChild(createExplosiveMine("mine",loc));
@@ -1266,15 +1273,18 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
                 if (results2.size() > 0) {      
           closest2 = results2.getClosestCollision();
           float dist1 = closest2.getDistance();
-          
 
           if(dist1<100 && dist1>10){
-                
+                  //ex.removeFromParent();
+           // }
+                  
+            
                 //System.out.println("Mine destroyed");
                 createExplosion();
                 explosives.detachChild(closest2.getGeometry());
                 hudTextinfo.setText("Mine has been disarmed");
                 createExplMineImg();
+               
 //            Box guiBoxRed = new Box(new Vector3f(0f,0f,0f),1,1,1);
 //            Geometry geoGuiBoxRed=new Geometry("Inventory Cube",guiBoxRed);
 //            Material matRed = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
