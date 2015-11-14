@@ -620,10 +620,10 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         rootNode.attachChild(sceneModel);
     }
     
-    private Spatial createBarrels(Vector3f loc) {
-        barrel = assetManager.loadModel("Models/barrel/barrel.j3o");
-        barrel.setLocalScale(2f);
-        rootNode.attachChild(barrel);
+    private Spatial createPlasma(Vector3f loc) {
+        barrel = assetManager.loadModel("Models/mineModel/plasma.j3o");
+        barrel.setLocalScale(0.5f);
+        //rootNode.attachChild(barrel);
         barrel.setLocalTranslation(loc);
         
         return barrel;
@@ -926,7 +926,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
             // randomize 3D coordinates
             Vector3f loc = new Vector3f(
                     FastMath.nextRandomInt(-75, 215),
-                    1,
+                    2,
                     FastMath.nextRandomInt(-100, 80));
             
             explosives.attachChild(createExplosiveMine("mine",loc));
@@ -944,7 +944,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
                     0,
                     FastMath.nextRandomInt(-100, 80));
             
-            collectables.attachChild(createBarrels(loc));
+            collectables.attachChild(createPlasma(loc));
         }
         rootNode.attachChild(collectables);
     }
