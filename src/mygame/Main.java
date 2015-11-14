@@ -86,7 +86,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     private boolean key, torch, pursuit, monkeyOnMe, MonEating, fireon, gameOver = false;
     private boolean awayFromCassio, away, awayFromMonkey = true;
     Vector3f walkDirection = new Vector3f();
-    private float airTime, vis2, vis3, vis4, timer, timer2, eatingTimer;
+    private float airTime, vis2, vis3, vis4, timer, timer2, eatingTimer, x;
     private AnimControl animationControl,animationControl2, animationControl3, animationControl4;
     private AnimChannel animationChannel, animationChannel2, animationChannel3, animationChannel4;
     private Vector3f otoLocation, sinbadLocation, Oto2SinBad, cassioLocation, monkeyLocation, Oto2cassio, Oto2monkey, walkMonkey;
@@ -279,29 +279,33 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         }
         
        
-         Vector3f camDir = cam.getDirection().clone().multLocal(0.5f); //speed
-         Vector3f camLeft = cam.getLeft().clone().multLocal(0.5f);
+         Vector3f camDir = cam.getDirection().clone().multLocal(x); //speed
+         Vector3f camLeft = cam.getLeft().clone().multLocal(x);
         
         timer += tpf;
-        if (timer > 40) {
+        if (timer > 190) {
         timer=0;
         }
        // System.out.println(timer);
-        if (timer > 10 && timer < 20 || timer > 30) {
+        if (timer > 50 && timer < 100 || timer > 150) {
          rootNode.removeLight(dl);
+         x = 0.35f;
         // System.out.println(rootNode.);
          afternoonLight();
          //camDir = cam.getDirection().clone().multLocal(0.2f); //speed
          //camLeft = cam.getLeft().clone().multLocal(0.2f);
-        } else if (timer > 20 && timer <= 30) {
+        } else if (timer > 100 && timer <= 150) {
          rootNode.removeLight(dl);
+         x = 0.45f;
          nightLight();
          //camDir = cam.getDirection().clone().multLocal(0.1f); //speed
          //camLeft = cam.getLeft().clone().multLocal(0.1f);
-        }else if (timer < 10) {
+        }else if (timer < 50) {
          rootNode.removeLight(dl);
          createLight();
+         x = 0.25f;
         }
+          System.out.println(timer);
         
 //        hudText = new BitmapText(guiFont,false);
 //        hudText.setSize(guiFont.getCharSet().getRenderedSize());
