@@ -86,7 +86,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     private ChaseCamera chaseCam;
     private boolean left,right,up,down, level;
     private boolean key, torch, pursuit, monkeyOnMe, MonEating, fireon, gameOver, gameWin = false;
-    private boolean awayFromCassio, away, awayFromMonkey, day = true;
+    private boolean awayFromCassio, away, awayFromMonkey = true;
     Vector3f walkDirection = new Vector3f();
     private float airTime, vis2, vis3, vis4, timer, timer2, eatingTimer, x;
     private AnimControl animationControl,animationControl2, animationControl3, animationControl4;
@@ -107,7 +107,8 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     RigidBodyControl mine_phy;
     private Cinematic cinematic;
     private CinematicEvent cameraMotionEvent;
-    private AudioNode gun, nature, foot, rooster, hello;
+    private AudioNode gun, nature, hello;
+
     
     @Override
     public void simpleInitApp() {
@@ -299,7 +300,6 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
          x = 0.35f;
         // System.out.println(rootNode.);
          afternoonLight();
-         day = true;
          //camDir = cam.getDirection().clone().multLocal(0.2f); //speed
          //camLeft = cam.getLeft().clone().multLocal(0.2f);
         } else if (timer > 100 && timer <= 150) {
@@ -309,10 +309,6 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
          //camDir = cam.getDirection().clone().multLocal(0.1f); //speed
          //camLeft = cam.getLeft().clone().multLocal(0.1f);
         }else if (timer < 50) {
-            if(day == true) {
-            rooster.play();
-            day = false;
-        }
          rootNode.removeLight(dl);
          createLight();
          x = 0.25f;
@@ -377,8 +373,8 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         
        
         if(character.getPhysicsLocation().distance(vendor.getPhysicsLocation())<10 && (Math.acos(vis2)* FastMath.RAD_TO_DEG) < 60 && away == true) {
-            hello.playInstance();
-             away = false;
+            hello.play();
+            away = false;
             animationChannel2.setAnim("SliceVertical");
             hudTextVendor.setText("Hello Stranger!!!\nPress 1 to buy a torch so you can see in the night!\n"
                     + "Press 2 to get the key for the door\n"
@@ -387,7 +383,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
             //System.out.println("Hello Stranger!!! Please press 1 to buy a torch!");
            }
         if(character.getPhysicsLocation().distance(vendor.getPhysicsLocation()) >= 10 || (Math.acos(vis2)* FastMath.RAD_TO_DEG) > 60) {
-           away = true;
+            away = true;
            hudTextVendor.setText("");
         }
         
@@ -400,7 +396,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         
        
         if(character.getPhysicsLocation().distance(cassio.getPhysicsLocation()) < 10 && (Math.acos(vis3)* FastMath.RAD_TO_DEG) < 60 && awayFromCassio == true) {
-            hello.playInstance();
+            hello.play();
             awayFromCassio = false;
             animationChannel3.setAnim("SliceVertical");
             hudTextCassio.setText("Hello im cassio!!!\nPlease press 1 to buy bananas!\n"
@@ -1131,7 +1127,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         inputManager.addMapping("rotateDoor", new KeyTrigger(KeyInput.KEY_R));
         //inputManager.addMapping("Key", new KeyTrigger(KeyInput.KEY_K));
         //inputManager.addMapping("CharB", new KeyTrigger(KeyInput.KEY_B));
-        inputManager.addMapping("Shoot", new KeyTrigger(KeyInput.KEY_RETURN));
+        inputManager.addMapping("Shoot", new MouseButtonTrigger(mouseInput.BUTTON_LEFT));
         inputManager.addMapping("bananas", new KeyTrigger(KeyInput.KEY_B));
         //inputManager.addMapping("Char1", new KeyTrigger(KeyInput.KEY_1));
         inputManager.addMapping("CharEat", new KeyTrigger(KeyInput.KEY_E));
@@ -1157,28 +1153,24 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     
     public void onAction(String binding, boolean value, float tpf) {
         if (binding.equals("CharLeft")) {
-            foot.play();
             if (value) {
                 left = true;
             } else {
                 left = false;
             }
         } else if (binding.equals("CharRight")) {
-            foot.play();
             if (value) {
                 right = true;
             } else {
                 right = false;
             }
         } else if (binding.equals("CharUp")) {
-            foot.play();
             if (value) {
                 up = true;
             } else {
                 up = false;
             }
         } else if (binding.equals("CharDown")) {
-            foot.play();
             if (value) {
                 down = true;
             } else {
@@ -1765,37 +1757,19 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     rootNode.attachChild(gun);
  
     /* nature sound - keeps playing in a loop. */
-    nature = new AudioNode(assetManager, "Sounds/Environment/rainforest.wav", true);
-    nature.setLooping(false);  // activate continuous playing
-    nature.setPositional(false);   
-    nature.setVolume(30);
+    nature = new AudioNode(assetManager, "Sounds/Environment/forest.ogg", false);
+    nature.setLooping(true);  // activate continuous playing
+    nature.setPositional(true);   
+    nature.setVolume(3);
     rootNode.attachChild(nature);
     nature.play(); // play continuously!
     
-    foot = new AudioNode(assetManager, "Sounds/Effects/Foot steps.ogg", false);
-    foot.setPositional(false);
-    foot.setLooping(false);
-    foot.setVolume(0.5f);
-    rootNode.attachChild(foot);
-    
-    rooster = new AudioNode(assetManager, "Sounds/Environment/rooster.wav", false);
-    rooster.setPositional(false);
-    rooster.setLooping(false);
-    rooster.setVolume(0.5f);
-    rootNode.attachChild(rooster);
-    
-    rooster = new AudioNode(assetManager, "Sounds/Environment/rooster.wav", false);
-    rooster.setPositional(false);
-    rooster.setLooping(false);
-    rooster.setVolume(0.5f);
-    rootNode.attachChild(rooster);
-    
-    hello = new AudioNode(assetManager, "Sounds/Effects/hello.wav", false);
-    hello.setPositional(false);
+    hello = new AudioNode(assetManager, "Sounds/Environment/hello.ogg", true);
     hello.setLooping(false);
-    hello.setVolume(0.5f);
+    hello.setPositional(true);   
+    hello.setVolume(3);
     rootNode.attachChild(hello);
-    
+
   }
     }
 
