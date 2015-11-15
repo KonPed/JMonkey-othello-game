@@ -282,7 +282,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
            hudTextSTWarning.setText("");
         }
         
-        if(mines >= 5 && explosiveMines >= 5 && gameOver == false) {
+        if(mines >= 20 && explosiveMines >= 20 && gameOver == false) {
             gameWin = true;
         }
         
@@ -949,7 +949,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     
     private void makeExplosiveMines() {
         explosives = new Node("Collectables");
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 27; i++) {
             // randomize 3D coordinates
             Vector3f loc = new Vector3f(
                     FastMath.nextRandomInt(-75, 215),
@@ -964,7 +964,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     private void makemines() {
         
         collectables = new Node("Collectables");
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 27; i++) {
             // randomize 3D coordinates
             Vector3f loc = new Vector3f(
                     FastMath.nextRandomInt(-75, 215),
@@ -1183,10 +1183,10 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
        else if (binding.equals("Char1") && !value==true) {
              if (character.getPhysicsLocation().distance(vendor.getPhysicsLocation())<10 && (Math.acos(vis2)*FastMath.RAD_TO_DEG)<60){
                  if(torch==false){
-                     if(credit>=20){
+                     if(credit>=40){
                          createtorch();
                          torch=true;
-                        credit-=20;
+                        credit-=40;
                         hudTextVendor.setText("Torch purchased!\nPress F to turn it on or off");
 
                      }
@@ -1209,7 +1209,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
                        
   
                      }else
-                        hudTextCassio.setText(" Sorry!\nYou dont have\nenough credits to buy bananas");
+                        hudTextCassio.setText(" Sorry!\nYou dont have\nenough credits to buy bananas\n you need 10 credits.");
 
             }
        }
@@ -1247,7 +1247,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         else if (binding.equals("Char2") && !value==true) {
              if (character.getPhysicsLocation().distance(vendor.getPhysicsLocation())<10 && (Math.acos(vis2)*FastMath.RAD_TO_DEG)<60){
                  if (key==false){
-                     if(mines>=3){
+                     if(mines>=20){
                         createKey();
                     //System.out.println("Key purchased");
                          hudTextVendor.setText("Key obtained");
@@ -1255,7 +1255,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
 
                      }
                      else
-                       hudTextVendor.setText("Not enough mines collected.\n  3 required");
+                       hudTextVendor.setText("Not enough mines collected.\nYou need 20 mines to obtain a key");
                  }
                  else
                      hudTextVendor.setText("You already have the key");
@@ -1264,10 +1264,10 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
                  
                      if(credit>=20){
                          
-                    cannonballs+=100;
+                    cannonballs+=50;
                     credit-=20;
                     
-                    hudTextCassio.setText("100 cannonballs purchased!");
+                    hudTextCassio.setText("50 cannonballs purchased!");
                    
 
                      }
@@ -1764,7 +1764,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     rootNode.attachChild(nature);
     nature.play(); // play continuously!
     
-    hello = new AudioNode(assetManager, "Sounds/Environment/hello.ogg", true);
+    hello = new AudioNode(assetManager, "Sounds/Environment/hello.ogg", false);
     hello.setLooping(false);
     hello.setPositional(true);   
     hello.setVolume(3);
