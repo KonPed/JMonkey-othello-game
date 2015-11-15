@@ -752,7 +752,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     
     private void createPointLight() {
         pl = new PointLight();
-        pl.setRadius(20);
+        pl.setRadius(30);
         pl.setColor(ColorRGBA.Yellow);
     }
     
