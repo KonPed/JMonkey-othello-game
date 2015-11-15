@@ -274,28 +274,19 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         if (timer > 190) {
         timer=0;
         }
-       // System.out.println(timer);
         if (timer > 50 && timer < 100 || timer > 150) {
          rootNode.removeLight(dl);
          x = 0.35f;
-        // System.out.println(rootNode.);
          afternoonLight();
-         //camDir = cam.getDirection().clone().multLocal(0.2f); //speed
-         //camLeft = cam.getLeft().clone().multLocal(0.2f);
         } else if (timer > 100 && timer <= 150) {
          rootNode.removeLight(dl);
          x = 0.45f;
          nightLight();
-         //camDir = cam.getDirection().clone().multLocal(0.1f); //speed
-         //camLeft = cam.getLeft().clone().multLocal(0.1f);
         }else if (timer < 50) {
          rootNode.removeLight(dl);
          createLight();
          x = 0.25f;
           }
-        
-        
-          //System.out.println(timer);
         
         //camera direction that is binded on othello and the respective animation.
         camDir.y = 0;
@@ -359,8 +350,6 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
             hudTextVendor.setText("Hello Stranger!!!\nPress 1 to buy a torch so you can see in the night!\n"
                     + "Press 2 to get the key for the door\n"
                     + "or 3 to buy some food!");
-            
-            //System.out.println("Hello Stranger!!! Please press 1 to buy a torch!");
            }
         //if othello is outside of the area of visibility then set text to nothing and the boolean away to true.
         if(character.getPhysicsLocation().distance(vendor.getPhysicsLocation()) >= 10 || (Math.acos(vis2)* FastMath.RAD_TO_DEG) > 60) {
@@ -387,7 +376,6 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
             animationChannel3.setAnim("SliceVertical");
             hudTextCassio.setText("Hello im cassio!!!\nPlease press 1 to buy bananas!\n"
                     + "or 2 to buy cannonballs!");
-            //System.out.println("Hello im cassio!!! Please press 1 to buy bananas!");
             
         }
         //if othello is outside of the area of visibility then set text to nothing and the boolean away to true.
@@ -422,7 +410,6 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
                 if(MonEating ==  false) {
                     stamina -= 20;
                     hudTextMonkey.setText("Hit!");
-                    System.out.println("hit!");
                 }
                 walkMonkey = new Vector3f(0f, 0f, 0f);
                 pursuit = false;
@@ -472,7 +459,6 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
             if(character.getPhysicsLocation().distance(ex.getLocalTranslation()) < 5) {
                 hudTextinfo.setText("Ouch!!!");
                 stamina -= 1000;
-                System.out.println("Ouch!!!");
                 createExplosion2(ex);
                 explosives.detachChild(ex);
             }
@@ -485,13 +471,6 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
           if(distance2 <= 100 && distance2 >= 15){
                 hudTextinfo.setText("target on sight.");
                   }else hudTextinfo.setText("");
-            if(distance2 < 5) {
-                hudTextinfo.setText("Ouch!!!");
-                stamina -= 1000;
-                System.out.println("Ouch!!!");
-                createExplosion();
-                explosives.detachChild(closest2.getGeometry());
-            }
            }else {
                 timer2 += tpf;
                 if(timer2 > 2){
@@ -502,7 +481,6 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
                     //setting a different timer to calculate the eating time of the monkey
                     if(MonEating == true) {
                         eatingTimer += tpf;
-                        System.out.println(eatingTimer);
                         if(eatingTimer > 20) {
                             MonEating = false;
                             eatingTimer = 0;
@@ -831,25 +809,6 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         //rootNode.attachChild(model4);
         getPhysicsSpace().add(monkey);
     }
-    //method that creates mine
-//    public Geometry createMine(String name, Vector3f loc) { 
-//    //Dome mine = new Dome(Vector3f.ZERO, 2, 32, 1f,false);
-//    Box mine = new Box(1f, 1f, 1f);
-//    Geometry geo = new Geometry("Mine", mine);
-//    Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
-//    //Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-//    //mat.setColor("Color",ColorRGBA.White);
-//    geo.setLocalTranslation(loc);
-//    geo.setMaterial(mat);
-//    geo.rotate(0, 0, 0.5f);
-////    mine_phy = new RigidBodyControl(1f);
-////    mine_phy.setGravity(90f);
-//    
-//    //geo.addControl(mine_phy);
-//    //|bulletAppState.getPhysicsSpace().add(mine_phy);
-//    rootNode.attachChild(geo);
-//    return geo;
-//  }
     //method that creates the explosive mines in a Dome shape.
     public Geometry createExplosiveMine(String name, Vector3f loc) { 
     Dome mine = new Dome(Vector3f.ZERO, 2, 32, 1f,false);
@@ -874,7 +833,6 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
             
             explosives.attachChild(createExplosiveMine("mine",loc));
         }
-        //rootNode.attachChild(explosives);
     }
     //method that creates the mines calling the method createPlasma()
     //and deploy them randomly on the map.
@@ -959,7 +917,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         vault1.setLocalTranslation(0,0,-120);
         rootNode.attachChild(vault1);
         
-        //the seconf wall
+        //the second wall
         Box wall2 = new Box(80,10,10);
         Geometry vault2 = new Geometry("Vault2", wall2);
         Material mat4 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
@@ -1133,7 +1091,6 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
                  if (key==false){
                      if(mines>=20){
                         createKey();
-                    //System.out.println("Key purchased");
                          hudTextVendor.setText("Key obtained");
                     key=true;
 
