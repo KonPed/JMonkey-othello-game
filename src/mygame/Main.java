@@ -449,7 +449,6 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
                    animationChannel.setAnim("Dodge",2.1f);   
                    collectables.detachChild(col);
                    hudTextinfo.setText("Mine Collected");
-                   System.out.println("Mine collected");
                    mines++;
                    //sound when collect mines.
                    collect.playInstance();
@@ -457,7 +456,6 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
                     createMineImg();
                 
                     credit += 10;
-                    System.out.println("credits : " + credit);
                     }
                }
         }
