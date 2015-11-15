@@ -1317,48 +1317,5 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     rootNode.attachChild(collect);
 
   }
-    
-    
-//    private void setupMotionPath() {
-//        path = new MotionPath();
-//        path.addWayPoint(new Vector3f(FastMath.nextRandomInt(-70,200), 1f,FastMath.nextRandomInt(-100,75)));
-//        path.addWayPoint(new Vector3f(FastMath.nextRandomInt(-70,200), 1f,FastMath.nextRandomInt(-100,75)));
-//        path.addWayPoint(new Vector3f(FastMath.nextRandomInt(-70,200), 1f,FastMath.nextRandomInt(-100,75)));
-//        path.addWayPoint(new Vector3f(FastMath.nextRandomInt(-70,200), 1f,FastMath.nextRandomInt(-100,75)));
-//        path.addWayPoint(new Vector3f(FastMath.nextRandomInt(-70,200), 1f,FastMath.nextRandomInt(-100,75)));
-//        path.addWayPoint(new Vector3f(FastMath.nextRandomInt(-70,200), 1f,FastMath.nextRandomInt(-100,75)));
-//        path.enableDebugShape(assetManager, rootNode);
-//
-//        motionControl = new MotionEvent(model4, path);
-//        motionControl.setDirectionType(MotionEvent.Direction.Path);
-//        motionControl.setRotation(new Quaternion().fromAngleNormalAxis(FastMath.HALF_PI, Vector3f.UNIT_Y));
-//
-//        motionControl.setInitialDuration(30f);
-//        motionControl.setSpeed(0.6f);
-//
-//        guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
-//        final BitmapText wayPointsText = new BitmapText(guiFont, false);
-//        wayPointsText.setSize(guiFont.getCharSet().getRenderedSize());
-//
-//        guiNode.attachChild(wayPointsText);
-//
-//        path.addListener(new MotionPathListener() {
-//            final BitmapText wayPointsText = new BitmapText(guiFont, false);
-//
-//            public void onWayPointReach(MotionEvent control, int wayPointIndex) {
-//                animationChannel4.setAnim("Walk");
-//                if (path.getNbWayPoints() == wayPointIndex + 1) {
-//                    wayPointsText.setText(control.getSpatial().getName() + " Finish!!! ");
-//                    animationChannel4.setAnim("Idle");
-//                } else {
-//                    wayPointsText.setText(control.getSpatial().getName() + " Reached way-point " + wayPointIndex);
-//                    System.out.println("Way point  " + wayPointIndex + "reached,  object moving " + control.getSpatial().getName());
-//                }
-//                wayPointsText.setLocalTranslation((cam.getWidth() - wayPointsText.getLineWidth()) / 2, cam.getHeight(), 0);
-//            }
-//        });
-//    }
-    //method that creates all the audio in the game.
-    
-    }
+}
 
