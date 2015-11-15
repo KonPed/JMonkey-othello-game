@@ -107,7 +107,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     RigidBodyControl mine_phy;
     private Cinematic cinematic;
     private CinematicEvent cameraMotionEvent;
-    private AudioNode gun, nature;
+    private AudioNode gun, nature, hello;
     
     @Override
     public void simpleInitApp() {
@@ -369,7 +369,8 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         
        
         if(character.getPhysicsLocation().distance(vendor.getPhysicsLocation())<10 && (Math.acos(vis2)* FastMath.RAD_TO_DEG) < 60 && away == true) {
-             away = false;
+            hello.play();
+            away = false;
             animationChannel2.setAnim("SliceVertical");
             hudTextVendor.setText("Hello Stranger!!!\nPress 1 to buy a torch so you can see in the night!\n"
                     + "Press 2 to get the key for the door\n"
@@ -378,7 +379,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
             //System.out.println("Hello Stranger!!! Please press 1 to buy a torch!");
            }
         if(character.getPhysicsLocation().distance(vendor.getPhysicsLocation()) >= 10 || (Math.acos(vis2)* FastMath.RAD_TO_DEG) > 60) {
-           away = true;
+            away = true;
            hudTextVendor.setText("");
         }
         
@@ -391,7 +392,8 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         
        
         if(character.getPhysicsLocation().distance(cassio.getPhysicsLocation()) < 10 && (Math.acos(vis3)* FastMath.RAD_TO_DEG) < 60 && awayFromCassio == true) {
-             awayFromCassio = false;
+            hello.play();
+            awayFromCassio = false;
             animationChannel3.setAnim("SliceVertical");
             hudTextCassio.setText("Hello im cassio!!!\nPlease press 1 to buy bananas!\n"
                     + "or 2 to buy cannonballs!");
@@ -1121,7 +1123,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         inputManager.addMapping("rotateDoor", new KeyTrigger(KeyInput.KEY_R));
         //inputManager.addMapping("Key", new KeyTrigger(KeyInput.KEY_K));
         //inputManager.addMapping("CharB", new KeyTrigger(KeyInput.KEY_B));
-        inputManager.addMapping("Shoot", new KeyTrigger(KeyInput.KEY_RETURN));
+        inputManager.addMapping("Shoot", new MouseButtonTrigger(mouseInput.BUTTON_LEFT));
         inputManager.addMapping("bananas", new KeyTrigger(KeyInput.KEY_B));
         //inputManager.addMapping("Char1", new KeyTrigger(KeyInput.KEY_1));
         inputManager.addMapping("CharEat", new KeyTrigger(KeyInput.KEY_E));
@@ -1747,16 +1749,22 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     gun = new AudioNode(assetManager, "Sounds/Effects/gun2.wav", false);
     gun.setPositional(false);
     gun.setLooping(false);
-    gun.setVolume(2);
+    gun.setVolume(0.5f);
     rootNode.attachChild(gun);
  
     /* nature sound - keeps playing in a loop. */
-    nature = new AudioNode(assetManager, "Sound/Environment/Ocean Waves.ogg", true);
+    nature = new AudioNode(assetManager, "Sounds/Environment/forest.ogg", false);
     nature.setLooping(true);  // activate continuous playing
     nature.setPositional(true);   
     nature.setVolume(3);
     rootNode.attachChild(nature);
     nature.play(); // play continuously!
+    
+    hello = new AudioNode(assetManager, "Sounds/Environment/hello.ogg", true);
+    hello.setLooping(false);
+    hello.setPositional(true);   
+    hello.setVolume(3);
+    rootNode.attachChild(hello);
   }
     }
 
