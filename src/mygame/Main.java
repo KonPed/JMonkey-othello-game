@@ -107,7 +107,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     RigidBodyControl mine_phy;
     private Cinematic cinematic;
     private CinematicEvent cameraMotionEvent;
-    private AudioNode gun, nature, hello;
+    private AudioNode gun, nature, hello, collect;
 
     
     @Override
@@ -115,78 +115,73 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
        bulletAppState = new BulletAppState();
        stateManager.attach(bulletAppState);
        
-       
+       //hide the frames that are displayed in the bottom left side of the screen
        setDisplayFps(false);
        setDisplayStatView(false);
        
-       
-            hudText = new BitmapText(guiFont, false);        
-            hudText.setSize(guiFont.getCharSet().getRenderedSize());      // font size
-            hudText.setColor(ColorRGBA.White);// font color
-        //    String text1=hudText.getText();
-       //     String text2[]=text1.split(":");
+       //values of the item displayed in the GUI ex mines, food, stamina etc.
+       hudText = new BitmapText(guiFont, false);        
+       hudText.setSize(guiFont.getCharSet().getRenderedSize());      // font size
+       hudText.setColor(ColorRGBA.White);// font color
+       hudText.setLocalTranslation(settings.getWidth()/1000f, settings.getHeight()/1.9f, 0); // position
+       guiNode.attachChild(hudText);
             
-//          hudText.setText("STAMINA: "+ stamina);             // the text
-            hudText.setLocalTranslation(settings.getWidth()/1000f, settings.getHeight()/1.9f, 0); // position
-            guiNode.attachChild(hudText);
+       //text that are displayed when interact with Iago
+       hudTextVendor = new BitmapText(guiFont, false);
+       hudTextVendor.setSize(guiFont.getCharSet().getRenderedSize());
+       hudTextVendor.setColor(ColorRGBA.White);
+       hudTextVendor.setLocalTranslation(settings.getWidth()/2.7f, settings.getHeight()/1.15f, 0);
+       guiNode.attachChild(hudTextVendor);
             
-            hudTextVendor = new BitmapText(guiFont, false);
-            hudTextVendor.setSize(guiFont.getCharSet().getRenderedSize());
-            hudTextVendor.setColor(ColorRGBA.White);
+       //text that are displayed when interact with Cassio
+       hudTextCassio = new BitmapText(guiFont, false);
+       hudTextCassio.setSize(guiFont.getCharSet().getRenderedSize());
+       hudTextCassio.setColor(ColorRGBA.White);
+       hudTextCassio.setLocalTranslation(settings.getWidth()/2.7f, settings.getHeight()/1.15f, 0);
+       guiNode.attachChild(hudTextCassio);
             
-            hudTextVendor.setLocalTranslation(settings.getWidth()/2.7f, settings.getHeight()/1.15f, 0);
-            guiNode.attachChild(hudTextVendor);
+       //text that are displayed when interact with monkey
+       hudTextMonkey = new BitmapText(guiFont, false);
+       hudTextMonkey.setSize(30);
+       hudTextMonkey.setColor(ColorRGBA.Red);
+       hudTextMonkey.setLocalTranslation(settings.getWidth()/2.4f, settings.getHeight()/1.08f, 0);
+       guiNode.attachChild(hudTextMonkey);
             
-            hudTextCassio = new BitmapText(guiFont, false);
-            hudTextCassio.setSize(guiFont.getCharSet().getRenderedSize());
-            hudTextCassio.setColor(ColorRGBA.White);
+       //text that are displays some hints ex when you dont hav cannonballs, bananas, the key, the torch, etc.
+       hudTextinfo = new BitmapText(guiFont, false);
+       hudTextinfo.setSize(guiFont.getCharSet().getRenderedSize());
+       hudTextinfo.setColor(ColorRGBA.Yellow);
+       hudTextinfo.setLocalTranslation(settings.getWidth()/2.16f, settings.getHeight()/2.8f, 0);
+       guiNode.attachChild(hudTextinfo);
             
-            hudTextCassio.setLocalTranslation(settings.getWidth()/2.7f, settings.getHeight()/1.15f, 0);
-            guiNode.attachChild(hudTextCassio);
+       //text that are display the stamin warning when below 800
+       hudTextSTWarning = new BitmapText(guiFont, false);
+       hudTextSTWarning.setSize(45);
+       hudTextSTWarning.setColor(ColorRGBA.Red);
+       hudTextSTWarning.setLocalTranslation(settings.getWidth()/1.6f, settings.getHeight()/4f, 0);
+       guiNode.attachChild(hudTextSTWarning);
             
-            hudTextMonkey = new BitmapText(guiFont, false);
-            hudTextMonkey.setSize(30);
-            hudTextMonkey.setColor(ColorRGBA.Red);
+       //text that are displayed when run out of cannonballs
+       hudTextCannons = new BitmapText(guiFont, false);
+       hudTextCannons.setSize(guiFont.getCharSet().getRenderedSize());
+       hudTextCannons.setColor(ColorRGBA.Red);
+       hudTextCannons.setLocalTranslation(settings.getWidth()/2.16f, settings.getHeight()/3.1f, 0);
+       guiNode.attachChild(hudTextCannons);
             
-            hudTextMonkey.setLocalTranslation(settings.getWidth()/2.4f, settings.getHeight()/1.08f, 0);
-            guiNode.attachChild(hudTextMonkey);
-            
-            hudTextinfo = new BitmapText(guiFont, false);
-            hudTextinfo.setSize(guiFont.getCharSet().getRenderedSize());
-            hudTextinfo.setColor(ColorRGBA.Yellow);
-            hudTextinfo.setLocalTranslation(settings.getWidth()/2.16f, settings.getHeight()/2.8f, 0);
-            guiNode.attachChild(hudTextinfo);
-            
-            hudTextSTWarning = new BitmapText(guiFont, false);
-            hudTextSTWarning.setSize(45);
-            hudTextSTWarning.setColor(ColorRGBA.Red);
-            hudTextSTWarning.setLocalTranslation(settings.getWidth()/1.6f, settings.getHeight()/4f, 0);
-            guiNode.attachChild(hudTextSTWarning);
-            
-            hudTextCannons = new BitmapText(guiFont, false);
-            hudTextCannons.setSize(guiFont.getCharSet().getRenderedSize());
-            hudTextCannons.setColor(ColorRGBA.Red);
-            hudTextCannons.setLocalTranslation(settings.getWidth()/2.16f, settings.getHeight()/3.1f, 0);
-            guiNode.attachChild(hudTextCannons);
-//             hudText6 = new BitmapText(guiFont, false);
-//            hudText6.setSize(guiFont.getCharSet().getRenderedSize());
-//            hudText6.setColor(ColorRGBA.Yellow);
-//            hudText6.setLocalTranslation(470, hudText2.getLineHeight()+680, 0);
-//            guiNode.attachChild(hudText6);
-            
-        hudTextGameOver = new BitmapText(guiFont, false);        
-        hudTextGameOver.setSize(100);      // font size
-        hudTextGameOver.setColor(ColorRGBA.Red);                             // font color
-        hudTextGameOver.setLocalTranslation(settings.getWidth()/3.1f, settings.getHeight()/1.4f, 0); // position
-        guiNode.attachChild(hudTextGameOver);
+       //text that are displayed when you die or run out of stamina
+       hudTextGameOver = new BitmapText(guiFont, false);        
+       hudTextGameOver.setSize(100);      // font size
+       hudTextGameOver.setColor(ColorRGBA.Red);                             // font color
+       hudTextGameOver.setLocalTranslation(settings.getWidth()/3.1f, settings.getHeight()/1.4f, 0); // position
+       guiNode.attachChild(hudTextGameOver);
         
-        hudTextWin = new BitmapText(guiFont, false);        
-        hudTextWin.setSize(100);      // font size
-        hudTextWin.setColor(ColorRGBA.Green);                             // font color
-        hudTextWin.setLocalTranslation(settings.getWidth()/3.1f, settings.getHeight()/1.4f, 0); // position
-        guiNode.attachChild(hudTextWin);
+       hudTextWin = new BitmapText(guiFont, false);        
+       hudTextWin.setSize(100);      // font size
+       hudTextWin.setColor(ColorRGBA.Green);                             // font color
+       hudTextWin.setLocalTranslation(settings.getWidth()/3.1f, settings.getHeight()/1.4f, 0); // position
+       guiNode.attachChild(hudTextWin);
        
-        
+        //all functions that are called inside the SimpleInitApp
         food();
         setupKeys();
         createTerrain();
@@ -206,66 +201,50 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         createAmbientLight();
         makewall();
         createDoor();
-        //setupMotionPath();
-        //motionControl.play();
-        
         initAudio();
         setupAnimationController();
-        
-        
-        //doCinematics();
     }
 
     
     @Override
     public void simpleUpdate(float tpf) {
+     
+  //set up a timer to clean all the hudText areas on the GUI screen
+  timer2 += tpf;
+   if(timer2 > 2){
+   hudTextinfo.setText("");
+   hudTextCannons.setText("");
+   timer2 = 0;
+   }
         
-      
-        //System.out.println(character.getPhysicsLocation());
-        //System.out.println(cam.getDirection());
-                
-                //clearing the hudTexrInfo
-                timer2 += tpf;
-                System.out.println(timer2);
-                if(timer2 > 2){
-                    hudTextinfo.setText("");
-                    hudTextCannons.setText("");
-                    timer2 = 0;
-                }
-//             
-//            hudText = new BitmapText(guiFont, false);        
-//            hudText.setSize(guiFont.getCharSet().getRenderedSize());      // font size
-//            hudText.setColor(new ColorRGBA(0.5f, 0.3f, 0f, 0.5f));                             // font color
-//        //    String text1=hudText.getText();
-//       //     String text2[]=text1.split(":");
-//            
-//            hudText.setText("STAMINA: "+ stamina);             // the text
-//            hudText.setLocalTranslation(0, settings.getHeight(), 0); // position
-//            guiNode.attachChild(hudText);
+      //this whole block executes when you start the game, until the win or the death of Othello!
       if(gameOver == false && gameWin == false) {
+            //this condition checks the cords when Othello is on the map or if he falls down from the scene.
             if(character.getPhysicsLocation().y > -5 && character.getPhysicsLocation().y < 0) {
               if(character.getPhysicsLocation().z<-110 && character.getPhysicsLocation().x>40 && character.getPhysicsLocation().x<100){
-                    level = true;
-                    character.setPhysicsLocation(new Vector3f(40,10,0));
-                    cassio.setPhysicsLocation(new Vector3f(5.06524f, 1, -12.185619f));
-                    rootNode.attachChild(model3);
-                    monkey.setPhysicsLocation(new Vector3f(FastMath.nextRandomInt(-31,72), 2.01976f, FastMath.nextRandomInt(-9,-9)));
-                    rootNode.attachChild(model4);
-                    rootNode.attachChild(explosives);
-                    rootNode.detachChild(collectables);
+                 level = true;
+                 character.setPhysicsLocation(new Vector3f(40,10,0));
+                 cassio.setPhysicsLocation(new Vector3f(5.06524f, 1, -12.185619f));
+                 rootNode.attachChild(model3);
+                 monkey.setPhysicsLocation(new Vector3f(FastMath.nextRandomInt(-31,72), 2.01976f, FastMath.nextRandomInt(-9,-9)));
+                 rootNode.attachChild(model4);
+                 rootNode.attachChild(explosives);
+                 rootNode.detachChild(collectables);
                     
                     
                 }else 
                   gameOver = true;
             }
+        //Point Light that is activated when useing the torch.    
         pl.setPosition(character.getPhysicsLocation());
         
-        
+        //The actual values in the GUI on the bottom left of the screen.
         hudText.setText("\n\nCredits: "+credit+"\n\nBananas: "+bananas+
                 "\n\nCannonballs: "+cannonballs+"\n\nFood: "+food+ 
                 "\n\nStamina: "+ stamina+ "\n\nMines: "+mines+
                 "\n\nExplosives "+explosiveMines);
         
+        //stamina begins to fall when the game starts.
         stamina -= tpf;
         stamina();
         
@@ -281,15 +260,16 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         } else if (stamina >= 800) {
            hudTextSTWarning.setText("");
         }
-        
+        //Winning condition when Othello has collected 40 mines. 20 simple mines and 20 explosive mines.
         if(mines >= 20 && explosiveMines >= 20 && gameOver == false) {
             gameWin = true;
         }
         
-       
+         //Determine the speed of Othello, depending of the time of the day. ex (day, afternoon, night) changes in var x.
          Vector3f camDir = cam.getDirection().clone().multLocal(x); //speed
          Vector3f camLeft = cam.getLeft().clone().multLocal(x);
         
+        //timer that always loops and changes from day,afternoon and night. Eventually the speed of Othello.
         timer += tpf;
         if (timer > 190) {
         timer=0;
@@ -315,15 +295,9 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
           }
         
         
-          System.out.println(timer);
+          //System.out.println(timer);
         
-//        hudText = new BitmapText(guiFont,false);
-//        hudText.setSize(guiFont.getCharSet().getRenderedSize());
-//        hudText.setColor(ColorRGBA.Yellow);
-//        hudText.setText("stamina");
-//        hudText.setLocalTranslation(300, hudText.getLineHeight(), 0);
-//        guiNode.attachChild(hudText);
-        
+        //camera direction that is binded on othello and the respective animation.
         camDir.y = 0;
         camLeft.y = 0;
         walkDirection.set(0, 0, 0);
@@ -362,19 +336,25 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         }
 
         character.setWalkDirection(walkDirection);
-        
+        //otolocation is always the location of Othello
         otoLocation = character.getPhysicsLocation();
+        //sinbadLocation is always the location of Iago
         sinbadLocation = vendor.getPhysicsLocation();
+        //Oto2SinBad is always the location between Othello and Iago
         Oto2SinBad = sinbadLocation.subtract(otoLocation).multLocal(0.1f);
         
+        //the view direction of Iago.
         Vector3f vD = new Vector3f();
         vD = vendor.getViewDirection().mult(-1f);
+        //calculation of dot product between the Vectors to find the angle of visibility.
         vis2 = (Oto2SinBad.normalize()).dot((vD.normalize()));
         
-       
+        //if Othello is in the area of visibility
         if(character.getPhysicsLocation().distance(vendor.getPhysicsLocation())<10 && (Math.acos(vis2)* FastMath.RAD_TO_DEG) < 60 && away == true) {
+            //hello sound play, as greeting.
             hello.play();
             away = false;
+            //perform an animation
             animationChannel2.setAnim("SliceVertical");
             hudTextVendor.setText("Hello Stranger!!!\nPress 1 to buy a torch so you can see in the night!\n"
                     + "Press 2 to get the key for the door\n"
@@ -382,56 +362,62 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
             
             //System.out.println("Hello Stranger!!! Please press 1 to buy a torch!");
            }
+        //if othello is outside of the area of visibility then set text to nothing and the boolean away to true.
         if(character.getPhysicsLocation().distance(vendor.getPhysicsLocation()) >= 10 || (Math.acos(vis2)* FastMath.RAD_TO_DEG) > 60) {
             away = true;
            hudTextVendor.setText("");
         }
-        
+        //cassio location
         cassioLocation = cassio.getPhysicsLocation();
+        //Oto2cassio is always the location between Othello and Cassio
         Oto2cassio = cassioLocation.subtract(otoLocation).multLocal(0.1f);
         
         Vector3f vD2 = new Vector3f();
+        //view direction of Cassio
         vD2 = cassio.getViewDirection().mult(-1f);
+        //calculation of dot product between the Vectors to find the angle of visibility.
         vis3 = (Oto2cassio.normalize()).dot((vD2.normalize()));
         
-       
+       //if Othello is in the area of visibility
         if(character.getPhysicsLocation().distance(cassio.getPhysicsLocation()) < 10 && (Math.acos(vis3)* FastMath.RAD_TO_DEG) < 60 && awayFromCassio == true) {
+            //hello sound play, as greeting
             hello.play();
             awayFromCassio = false;
+            //perform an animation
             animationChannel3.setAnim("SliceVertical");
             hudTextCassio.setText("Hello im cassio!!!\nPlease press 1 to buy bananas!\n"
                     + "or 2 to buy cannonballs!");
             //System.out.println("Hello im cassio!!! Please press 1 to buy bananas!");
             
         }
+        //if othello is outside of the area of visibility then set text to nothing and the boolean away to true.
         if(character.getPhysicsLocation().distance(cassio.getPhysicsLocation()) >= 10 || (Math.acos(vis3)* FastMath.RAD_TO_DEG) > 60) {
            awayFromCassio = true;
            hudTextCassio.setText("");
         }
         
+        //location to monkey
         monkeyLocation = monkey.getPhysicsLocation();
+        //Oto2monkey is always the location between Othello and monkey
         Oto2monkey = monkeyLocation.subtract(otoLocation).multLocal(0.1f);
         
         Vector3f vD3 = new Vector3f();
+        //view direction of monkey
         vD3 = monkey.getViewDirection();
+        //calculation of dot product between the Vectors to find the angle of visibility.
         vis4 = (Oto2monkey.normalize()).dot((vD3.normalize()));
         
-       
+        //if Othello is in the area of visibility
         if(character.getPhysicsLocation().distance(monkey.getPhysicsLocation()) < 80 && (Math.acos(vis4)* FastMath.RAD_TO_DEG) < 120 && awayFromMonkey == true && level == true) { 
-            //awayFromMonkey = false;
             monkeyOnMe = true;
             pursuit = true;
             animationChannel4.setAnim("Walk");
             hudTextMonkey.setText("Haha i got you!!!");
-            //System.out.println("Haha i got you!!!");
-            //motionControl.stop();
             
+            //if monkey is following Othello
             if (pursuit) {
             animationChannel4.setAnim("Walk");
-//            monkeyLocation = monkey.getPhysicsLocation();
-//            otoLocation = character.getPhysicsLocation();
-//            monkey.setViewDirection(otoLocation); //to use with physic based characters
-
+            //if the distance between monkey and Othello is less than 4. PROXIMITY = 4
             if (monkeyLocation.distance(otoLocation) < PROXIMITY) {
                 if(MonEating ==  false) {
                     stamina -= 20;
@@ -440,8 +426,9 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
                 }
                 walkMonkey = new Vector3f(0f, 0f, 0f);
                 pursuit = false;
-                //animationChannel4.setAnim("Idle");
+                //else monkey again follows Othello
             } else {
+                // this sets the speed of the Monkey.
                 walkMonkey = otoLocation.subtract(monkeyLocation).multLocal(0.009f);
                 monkey.setViewDirection(walkMonkey.mult(-1f));
                 animationChannel4.setAnim("Walk");
@@ -453,75 +440,36 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
             hudTextMonkey.setText("");
         }
         
+        //this code executes when the User is in the first level of the game.
         if(level == false) {
-          //results = new CollisionResults();
-          //Ray ray = new Ray(character.getPhysicsLocation(), character.getViewDirection());
-          //collectables.collideWith(ray, results);
-          
-          
-//                    if (results.size() > 0) {
-          //closest = results.getClosestCollision();
-//          float distance = closest.getDistance();
-//            if(distance < 15) {
                 
+               //for each loop to see all the mines inside the collectable Node, and remove them when Othello is near.
                for(Spatial col:collectables.getChildren()) {
-                    if(character.getPhysicsLocation().distance(col.getLocalTranslation()) < 5) {
-                     animationChannel.setAnim("Dodge",2.1f);   
-                    collectables.detachChild(col);
-                    
-                    
-               
-                hudTextinfo.setText("Mine Collected");
-                System.out.println("Mine collected");
-                mines++;
-                System.out.println(mines);
-                //collectables.detachChild(closest.getGeometry());
-                createMineImg();
-                //displacement += 30;
-//            Box guiBox = new Box(new Vector3f(0f,0f,0f),1,1,1);
-//            Geometry geoGuiBox;
-//            geoGuiBox = new Geometry("Inventory Cube",guiBox);
-//             Material mat1 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-//            mat1.setColor("Color",ColorRGBA.Blue);
-//            geoGuiBox.setMaterial(mat1);
-//            
-//             guiNode.attachChild(geoGuiBox);
-//             geoGuiBox.setLocalScale(10);
-//             geoGuiBox.setLocalTranslation(settings.getWidth()-21,displacement,0);
-//                displacement+=30;
+                   if(character.getPhysicsLocation().distance(col.getLocalTranslation()) < 5) {
+                   animationChannel.setAnim("Dodge",2.1f);   
+                   collectables.detachChild(col);
+                   hudTextinfo.setText("Mine Collected");
+                   System.out.println("Mine collected");
+                   mines++;
+                   //sound when collect mines.
+                   collect.playInstance();
+                    //create the image for the mine in the GUI
+                    createMineImg();
                 
-                credit += 10;
-                System.out.println("credits : " + credit);
-                
-//                if () {
-//                timer2 += tpf;
-//                System.out.println(timer2);
-//                if(timer2 > 2){
-//                    hudTextinfo.setText("");
-//                    timer2 = 0;
-//                }
-//             }
-                
-                
-            //}
-//         }else {
-//                timer2 += tpf;
-//                System.out.println(timer2);
-//                if(timer2 > 2){
-//                    hudTextinfo.setText("");
-//                    timer2 = 0;
-//                }
-//             }
-        }
+                    credit += 10;
+                    System.out.println("credits : " + credit);
+                    }
                }
         }
+        //this code exwcutes when the player in on the second level of the game.
         if(level == true) {            
           results2 = new CollisionResults();
+          //using a ray to interact with the explosive mines in the second level.
           ray2 = new Ray(character.getPhysicsLocation().add(0f,-2f,0f), character.getViewDirection());
           explosives.collideWith(ray2, results2);
           
           
-          
+          //for each loop that sees all the explosives mines in the explosives Node and remove when Othello hits a mine causing him damage.
           for(Spatial ex:explosives.getChildren()){
             if(character.getPhysicsLocation().distance(ex.getLocalTranslation()) < 5) {
                 hudTextinfo.setText("Ouch!!!");
@@ -531,15 +479,13 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
                 explosives.detachChild(ex);
             }
           }
-                    if (results2.size() > 0) {
+           //take the closest target that the ray aims to and display the message target on sight.
+           if (results2.size() > 0) {
           closest2 = results2.getClosestCollision();
           float distance2 = closest2.getDistance();
           
-          
-          
-            if(distance2 <= 100 && distance2 >= 15){
+          if(distance2 <= 100 && distance2 >= 15){
                 hudTextinfo.setText("target on sight.");
-                System.out.println("target on sight.");
                   }else hudTextinfo.setText("");
             if(distance2 < 5) {
                 hudTextinfo.setText("Ouch!!!");
@@ -547,36 +493,19 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
                 System.out.println("Ouch!!!");
                 createExplosion();
                 explosives.detachChild(closest2.getGeometry());
-                
-//                Box guiBox = new Box(new Vector3f(0f,0f,0f),1,1,1);
-//            Geometry geoGuiBox;
-//            geoGuiBox = new Geometry("Inventory Cube",guiBox);
-//             Material mat1 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-//            mat1.setColor("Color",ColorRGBA.Red);
-//            geoGuiBox.setMaterial(mat1);
-//            
-//             guiNode.attachChild(geoGuiBox);
-//             geoGuiBox.setLocalScale(10);
-//             geoGuiBox.setLocalTranslation(settings.getWidth()-60,displacement2,0);
-//                displacement2+=30;
-//                
-//                credit += 20;
-                System.out.println("credits : " + credit);
-                
             }
-                    }else {
-                             timer2 += tpf;
-                             System.out.println(timer2);
-                             if(timer2 > 2){
-                             hudTextinfo.setText("");
-                             timer2 = 0;
-                            }
-                         }
-            
+           }else {
+                timer2 += tpf;
+                if(timer2 > 2){
+                hudTextinfo.setText("");
+                timer2 = 0;
+                }
+            }
+                    //setting a different timer to calculate the eating time of the monkey
                     if(MonEating == true) {
                         eatingTimer += tpf;
                         System.out.println(eatingTimer);
-                        if(eatingTimer > 10) {
+                        if(eatingTimer > 20) {
                             MonEating = false;
                             eatingTimer = 0;
                         }
@@ -585,11 +514,13 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         }
        
       }else {
+          //this code executes if the game is over
           if (gameOver == true) {
           hudTextGameOver.setText("You died!\nGame Over");
           rootNode.detachAllChildren();
           }else {
-             gameWin = true;
+            //this code executes if the player wins 
+            gameWin = true;
             hudTextWin.setText("Congratulations!\nYou win!");
             rootNode.detachAllChildren();
           }
@@ -608,30 +539,32 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         return bulletAppState.getPhysicsSpace();
     }
     
+    //this method actually creates 2 boxes one inside the other
+    //that increase and decrease depending witht he value of stamina.
     public void stamina(){
         
-        Box initialBox = new Box(new Vector3f(0f,0f,0f),20,1,1);
-            
+            Box initialBox = new Box(new Vector3f(0f,0f,0f),20,1,1);
             float width = settings.getWidth();
             Geometry initGuiBox=new Geometry("Initial Cube",initialBox);
             Material mat1 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
             mat1.setColor("Color", ColorRGBA.Red);
             initGuiBox.setMaterial(mat1);
-             guiNode.attachChild(initGuiBox);
-             initGuiBox.setLocalScale(10);
-             initGuiBox.setLocalTranslation(0,50,0);
+            guiNode.attachChild(initGuiBox);
+            initGuiBox.setLocalScale(10);
+            initGuiBox.setLocalTranslation(0,50,0);
        
-        Box staminaBox = new Box(new Vector3f(0f,0f,0f),(5000-stamina)/250,1,1);
+            Box staminaBox = new Box(new Vector3f(0f,0f,0f),(5000-stamina)/250,1,1);
             Geometry stamGuiBox=new Geometry("Stamina Cube",staminaBox);
-             Material mat2 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+            Material mat2 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
             mat2.setColor("Color", ColorRGBA.White);
-               stamGuiBox.setMaterial(mat2);
-               guiNode.attachChild(stamGuiBox);
+            stamGuiBox.setMaterial(mat2);
+            guiNode.attachChild(stamGuiBox);
               
              stamGuiBox.setLocalScale(10);
              stamGuiBox.setLocalTranslation(0,50,0);
      }
     
+    //method that creates the scene Town
     private void createTerrain() {
         sceneModel = assetManager.loadModel("Scenes/town/main.scene");
         sceneModel.setLocalScale(1f);
@@ -643,7 +576,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         
         rootNode.attachChild(sceneModel);
     }
-    
+    //method that creates the mines Spatial on the first level
     private Spatial createPlasma(Vector3f loc) {
         plasma = assetManager.loadModel("Models/mineModel/plasma.j3o");
         plasma.setLocalScale(0.5f);
@@ -652,7 +585,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         
         return plasma;
     }
-    
+    //method that creates the key image
     private void createKey() {
         Picture pic = new Picture("Key Picture");
         pic.setImage(assetManager, "Textures/key/key_1_.png", true);
@@ -661,16 +594,16 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         pic.setPosition(settings.getWidth()/1.2f, settings.getHeight()/11f);
         guiNode.attachChild(pic);
     }
-    
+    //method that creates the torch image
     private void createtorch() {
-        Picture torchimg = new Picture("coins Picture");
+        Picture torchimg = new Picture("Torch Picture");
         torchimg.setImage(assetManager, "Textures/imges/torch.png", true);
         torchimg.setWidth(settings.getWidth()/18);
         torchimg.setHeight(settings.getHeight()/11);
         torchimg.setPosition(settings.getWidth()/1.28f, settings.getHeight()/13.35f);
         guiNode.attachChild(torchimg);
     }
-    
+    //method that creates the banana picture
     private void food() {
         Picture banana = new Picture("banana Picture");
         banana.setImage(assetManager, "Textures/imges/banana.png", true);
@@ -679,13 +612,15 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         banana.setPosition(settings.getWidth()/14f, settings.getHeight()/2.65f);
         guiNode.attachChild(banana);
         
-        Picture food = new Picture("banana Picture");
+        //method that creates the food picture
+        Picture food = new Picture("food Picture");
         food.setImage(assetManager, "Textures/imges/food.png", true);
         food.setWidth(settings.getWidth()/25);
         food.setHeight(settings.getHeight()/17);
         food.setPosition(settings.getWidth()/14f, settings.getHeight()/3.95f);
         guiNode.attachChild(food);
         
+        //method that creates the cannonballs picture
         Picture cannonballs = new Picture("cannonballs Picture");
         cannonballs.setImage(assetManager, "Textures/imges/cannonballs.png", true);
         cannonballs.setWidth(settings.getWidth()/30);
@@ -693,6 +628,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         cannonballs.setPosition(settings.getWidth()/10f, settings.getHeight()/3.2f);
         guiNode.attachChild(cannonballs);
         
+        //method that creates the coins picture
         Picture coins = new Picture("coins Picture");
         coins.setImage(assetManager, "Textures/imges/coin.png", true);
         coins.setWidth(settings.getWidth()/30);
@@ -701,6 +637,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         guiNode.attachChild(coins);
     }
     
+    //method that creates the mine picture and adding it in the GUI
     private void createMineImg() {
         Picture pic = new Picture("Mine Picture");
         pic.setImage(assetManager, "Textures/Mines/mine.png", true);
@@ -709,9 +646,8 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         pic.setPosition(settings.getWidth()/1.079f, settings.getHeight()/50f+displacement);
         displacement += 35;
         guiNode.attachChild(pic);
-//settings.getHeight()/50f
     }
-    
+    //method that creates the explosive mine picture and adding it in the GUI
     private void createExplMineImg() {
         Picture pic = new Picture("Explosive mine Picture");
         pic.setImage(assetManager, "Textures/Mines/ex_mine.png", true);
@@ -722,21 +658,20 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         guiNode.attachChild(pic);
 
     }
-    
+    //method that creates the Sky as a 6 pictured image inside an array
     private void createSky() {
-                Texture[] skyTex = new Texture[6];
-                skyTex[0] = assetManager.loadTexture("Textures/Sky/Lagoon/lagoon_west.jpg");
-                skyTex[1] = assetManager.loadTexture("Textures/Sky/Lagoon/lagoon_east.jpg");
-                skyTex[2] = assetManager.loadTexture("Textures/Sky/Lagoon/lagoon_north.jpg");
-                skyTex[3] = assetManager.loadTexture("Textures/Sky/Lagoon/lagoon_south.jpg");
-                skyTex[4] = assetManager.loadTexture("Textures/Sky/Lagoon/lagoon_up.jpg");
-                skyTex[5] = assetManager.loadTexture("Textures/Sky/Lagoon/lagoon_down.jpg");
+        Texture[] skyTex = new Texture[6];
+        skyTex[0] = assetManager.loadTexture("Textures/Sky/Lagoon/lagoon_west.jpg");
+        skyTex[1] = assetManager.loadTexture("Textures/Sky/Lagoon/lagoon_east.jpg");
+        skyTex[2] = assetManager.loadTexture("Textures/Sky/Lagoon/lagoon_north.jpg");
+        skyTex[3] = assetManager.loadTexture("Textures/Sky/Lagoon/lagoon_south.jpg");
+        skyTex[4] = assetManager.loadTexture("Textures/Sky/Lagoon/lagoon_up.jpg");
+        skyTex[5] = assetManager.loadTexture("Textures/Sky/Lagoon/lagoon_down.jpg");
 
-                Spatial sky = SkyFactory.createSky(assetManager, skyTex[0], skyTex[1], skyTex[2], skyTex[3], skyTex[4], skyTex[5]);
-                rootNode.attachChild(sky);
-        //rootNode.attachChild(SkyFactory.createSky(assetManager, "Textures/Sky/Bright/BrightSky.dds", false));
+        Spatial sky = SkyFactory.createSky(assetManager, skyTex[0], skyTex[1], skyTex[2], skyTex[3], skyTex[4], skyTex[5]);
+        rootNode.attachChild(sky);
     }
-    
+    //method that creates the day light for the game
     private void createLight() {
         Vector3f direction = new Vector3f(-0.1f, -0.7f, -1).normalizeLocal();
         dl = new DirectionalLight();
@@ -744,18 +679,18 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         dl.setColor(new ColorRGBA(1f, 1f, 1f, 1.0f));
         rootNode.addLight(dl);
     }
-    
+    //method that creates the Ambient Light that makes Othello a bit visible during the night.
     private void createAmbientLight() {
         al = new AmbientLight();
         al.setColor(ColorRGBA.Yellow);
     }
-    
+    //method that creates PointLight that light around Othello during night.
     private void createPointLight() {
         pl = new PointLight();
         pl.setRadius(30);
         pl.setColor(ColorRGBA.Yellow);
     }
-    
+    //method that creates the night light for the game. 
     private void nightLight() {
          Vector3f direction = new Vector3f(0.5348667f, -0.6787754f, -0.50317144f).normalizeLocal();
          dl = new DirectionalLight();
@@ -764,6 +699,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
          dl.setColor(nightColor);
          rootNode.addLight(dl);
         }
+     //method that creates the afternoon light for the game. 
      private void afternoonLight() {
          Vector3f direction = new Vector3f(0.5348667f, -0.6787754f, -0.50317144f).normalizeLocal();
          dl = new DirectionalLight();
@@ -772,7 +708,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
          dl.setColor(new ColorRGBA(1f, 1f, 1f, 1.0f).multLocal(0.6f));
          rootNode.addLight(dl);
      }
-    
+    //method that creates Othello.
     private void createCharacter() {
         CapsuleCollisionShape capsule = new CapsuleCollisionShape(2f, 1f, 1);
         character = new CharacterControl(capsule, 2.75f);
@@ -787,11 +723,9 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         rootNode.attachChild(model);
         getPhysicsSpace().add(character);
     }
-    
+    //method that creates the torch.
     private void createTorch() {
         torchModel = assetManager.loadModel("Models/torch/torch1.j3o");
-        //Material mat_default = new Material( assetManager, "Common/MatDefs/Misc/ShowNormals.j3md");
-        //torchModel.setMaterial(mat_default);
         torchModel.setLocalScale(0.5f);
         torchModel.rotate(3f, 0f, 0f);
         torchModel.setLocalTranslation(1.09f, -4f, 0.4f);
@@ -799,20 +733,17 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         SkeletonControl skeletonControl = model.getControl(SkeletonControl.class);
         n = skeletonControl.getAttachmentsNode("hand.right");
         n.attachChild(torchModel);
-        //model.attachChild(torchModel);
     }
-    
+    //method that creates Cassio NPC.
     private void createCassio() {
         CapsuleCollisionShape capsule = new CapsuleCollisionShape(2f, 1.6f, 1);
         cassio = new CharacterControl(capsule, 2.75f);
         model3 = (Node) assetManager.loadModel("Models/Sinbad/Sinbad.mesh.j3o");
         model3.setLocalScale(0.4f);
         model3.addControl(cassio);
-//        cassio.setPhysicsLocation(new Vector3f(5.06524f, 1, -12.185619f));
-        //rootNode.attachChild(model3);
         getPhysicsSpace().add(cassio);
     }
-    
+    //method that creates the fire on top of the torch.
     public void createFire(){
     fire = new ParticleEmitter("Emitter", ParticleMesh.Type.Triangle, 30);
     Material mat_red = new Material(assetManager, 
@@ -835,10 +766,8 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     fire.setHighLife(3f);
     fire.getParticleInfluencer().setVelocityVariation(0.3f);
     fire.setLocalTranslation(1.54f, -8.5f, -0.75f);
-    //model.attachChild(fire);
-    //rootNode.attachChild(fire);
     }
-    
+    //method that creates the explosion when you shoot a mine in the second stage.
     public void createExplosion(){
     explosion = new ParticleEmitter("Emitter", ParticleMesh.Type.Triangle, 30);
     Material mat_red = new Material(assetManager, 
@@ -860,7 +789,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     explosion.setLocalTranslation(closest2.getGeometry().getLocalTranslation());
     rootNode.attachChild(explosion);
     }
-    
+    //method that creates the explosion when Othello steps into a mine.
     public void createExplosion2(Spatial ex){
     explosion = new ParticleEmitter("Emitter", ParticleMesh.Type.Triangle, 30);
     Material mat_red = new Material(assetManager, 
@@ -882,7 +811,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     explosion.setLocalTranslation(ex.getLocalTranslation());
     rootNode.attachChild(explosion);
     }
-    
+    //method that creates Iago.
     private void createVendor() {
         CapsuleCollisionShape capsule = new CapsuleCollisionShape(2f, 1.6f, 1);
         vendor = new CharacterControl(capsule, 2.75f);
@@ -893,7 +822,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         rootNode.attachChild(model2);
         getPhysicsSpace().add(vendor);
     }
-    
+    //method that creates Monkey.
     private void createMonkey() {
         CapsuleCollisionShape capsule = new CapsuleCollisionShape(0.6f, 0.6f);
         monkey = new CharacterControl(capsule, 2.75f);
@@ -904,49 +833,38 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         //rootNode.attachChild(model4);
         getPhysicsSpace().add(monkey);
     }
-    
-    public Geometry createMine(String name, Vector3f loc) { 
-    //Dome mine = new Dome(Vector3f.ZERO, 2, 32, 1f,false);
-    Box mine = new Box(1f, 1f, 1f);
-    Geometry geo = new Geometry("Mine", mine);
-    Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
-    //Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-    //mat.setColor("Color",ColorRGBA.White);
-    geo.setLocalTranslation(loc);
-    geo.setMaterial(mat);
-    geo.rotate(0, 0, 0.5f);
-//    mine_phy = new RigidBodyControl(1f);
-//    mine_phy.setGravity(90f);
-    
-    //geo.addControl(mine_phy);
-    //|bulletAppState.getPhysicsSpace().add(mine_phy);
-    rootNode.attachChild(geo);
-    return geo;
-  }
-    
+    //method that creates mine
+//    public Geometry createMine(String name, Vector3f loc) { 
+//    //Dome mine = new Dome(Vector3f.ZERO, 2, 32, 1f,false);
+//    Box mine = new Box(1f, 1f, 1f);
+//    Geometry geo = new Geometry("Mine", mine);
+//    Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+//    //Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+//    //mat.setColor("Color",ColorRGBA.White);
+//    geo.setLocalTranslation(loc);
+//    geo.setMaterial(mat);
+//    geo.rotate(0, 0, 0.5f);
+////    mine_phy = new RigidBodyControl(1f);
+////    mine_phy.setGravity(90f);
+//    
+//    //geo.addControl(mine_phy);
+//    //|bulletAppState.getPhysicsSpace().add(mine_phy);
+//    rootNode.attachChild(geo);
+//    return geo;
+//  }
+    //method that creates the explosive mines in a Dome shape.
     public Geometry createExplosiveMine(String name, Vector3f loc) { 
     Dome mine = new Dome(Vector3f.ZERO, 2, 32, 1f,false);
-    //Box mine = new Box(1.5f, 1.5f, 1.5f);
     Geometry geo = new Geometry("Mine", mine);
     Material mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
-    //Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-    //mat.setTexture("NormalMap", assetManager.loadTexture("Textures/ColoredTex/Monkey.png"));
-    //mat.setTexture("ColorMap", assetManager.loadTexture("Textures/ColoredTex/Monkey.png"));
     mat.setColor("Diffuse",ColorRGBA.Red);
-    //mat.getAdditionalRenderState().setBlendMode(RenderState.BlendMode.Alpha);  // activate transparency
-    //geo.setQueueBucket(RenderQueue.Bucket.Transparent);
     mat.setBoolean("UseMaterialColors", true);
     geo.setLocalTranslation(loc);
     geo.setMaterial(mat);
-    //geo.rotate(0, 0, 0.8f);
-    //mine_phy = new RigidBodyControl(1f);
-    
-    //geo.addControl(mine_phy);
-   // bulletAppState.getPhysicsSpace().add(mine_phy);
-    //rootNode.attachChild(geo);
     return geo;
   }
-    
+    //method that creates the explosive mines calling the method createExplosiveMine()
+    //and deploy them randomly on the map.
     private void makeExplosiveMines() {
         explosives = new Node("Collectables");
         for (int i = 0; i < 27; i++) {
@@ -960,9 +878,9 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         }
         //rootNode.attachChild(explosives);
     }
-    
+    //method that creates the mines calling the method createPlasma()
+    //and deploy them randomly on the map.
     private void makemines() {
-        
         collectables = new Node("Collectables");
         for (int i = 0; i < 27; i++) {
             // randomize 3D coordinates
@@ -975,10 +893,8 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         }
         rootNode.attachChild(collectables);
     }
-    
+    //method that creates the inventory line calling the makeCube method (last line)
     public void makeInventory() {
-    //DirectionalLight sun2 = new DirectionalLight();
-    //sun2.setDirection(new Vector3f(-0.1f, 6.7f, -1.0f));
     float width = settings.getWidth();
     float height = settings.getHeight();
     Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
@@ -988,14 +904,11 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     cubeHUD.setLocalTranslation(width-2,0,0);
     cubeHUD.setLocalScale(3,height,0);
     guiNode.attachChild(cubeHUD);
-    //guiNode.addLight(sun2);
     rootNode.attachChild(guiNode);
     
     }
-    
+    //method that creates the inventory line calling the makeCube method (middle line)
     public void makeInventory2() {
-    //DirectionalLight sun2 = new DirectionalLight();
-    //sun2.setDirection(new Vector3f(-0.1f, -0.7f, -1.0f));
     float width = settings.getWidth();
     float height = settings.getHeight();
     Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
@@ -1005,14 +918,11 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     cubeHUD.setLocalTranslation(width/1.040f,0,0);
     cubeHUD.setLocalScale(2,height,1);
     guiNode.attachChild(cubeHUD);
-   // guiNode.addLight(sun2);
     rootNode.attachChild(guiNode);
     
     }
-    
+    //method that creates the inventory line calling the makeCube method(first line)
     public void makeInventory3() {
-    //DirectionalLight sun2 = new DirectionalLight();
-    //sun2.setDirection(new Vector3f(-0.1f, -0.7f, -1.0f));
     float width = settings.getWidth();
     float height = settings.getHeight();
     Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
@@ -1022,13 +932,10 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     cubeHUD.setLocalTranslation(width/1.080f,0,0);
     cubeHUD.setLocalScale(3,height,1);
     guiNode.attachChild(cubeHUD);
-   // guiNode.addLight(sun2);
     rootNode.attachChild(guiNode);
     
     }
-    
-    
-    
+    //this is the actual line that is a box with x ,y, z determined by the methods for the inventory.
     protected Geometry makeCube(String name, float x, float y, float z) {
     Box box = new Box(new Vector3f(x, y, z), 1, 1, 1);
     Geometry cube = new Geometry(name, box);
@@ -1037,62 +944,49 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
     cube.setMaterial(mat1);
     return cube;
   }
-    
+    //method that creates the wall with 2 boxes and the same thexture.
     protected void makewall() {
-        Box wall1=new Box(50,10,10);
-        Geometry vault1=new Geometry("Vault1", wall1);
-        
-        
-        
-        Material mat3=new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        RigidBodyControl vault1_phy=new RigidBodyControl(5);
+        //the first wall
+        Box wall1 = new Box(50,10,10);
+        Geometry vault1 = new Geometry("Vault1", wall1);
+        Material mat3 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        RigidBodyControl vault1_phy = new RigidBodyControl(5);
         vault1.addControl(vault1_phy);
         vault1.getControl(RigidBodyControl.class).setKinematic(true);
-        
         bulletAppState.getPhysicsSpace().add(vault1_phy);
         mat3.setColor("Color", ColorRGBA.Gray);
         vault1.setMaterial(mat3);
-        //vault1.move(6,0,0);
         Texture cubeTex1= assetManager.loadTexture("Textures/Terrain/BrickWall/BrickWall.jpg");
         mat3.setTexture("ColorMap", cubeTex1);
         vault1.setLocalTranslation(0,0,-120);
-        
         rootNode.attachChild(vault1);
         
-       
-        
-        Box wall2=new Box(80,10,10);
-        Geometry vault2=new Geometry("Vault2", wall2);
-
-        Material mat4=new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        RigidBodyControl vault2_phy=new RigidBodyControl(5);
+        //the seconf wall
+        Box wall2 = new Box(80,10,10);
+        Geometry vault2 = new Geometry("Vault2", wall2);
+        Material mat4 = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        RigidBodyControl vault2_phy = new RigidBodyControl(5);
         vault2.addControl(vault2_phy);
         vault2.getControl(RigidBodyControl.class).setKinematic(true);
-        
         bulletAppState.getPhysicsSpace().add(vault2_phy);
         mat4.setColor("Color", ColorRGBA.Gray);
         vault2.setMaterial(mat4);
-        //vault2.move(6,0,0);
         Texture cubeTex2= assetManager.loadTexture("Textures/Terrain/BrickWall/BrickWall.jpg");
         mat4.setTexture("ColorMap", cubeTex2);
         vault2.setLocalTranslation(150,0,-120);
-        
         rootNode.attachChild(vault2);
     }
-    
+    //method that creates the door between the 2 walls.
     public void createDoor(){
-        vaultNode=new Node();
+        vaultNode = new Node();
         Geometry vault;
         Box door=new Box(9,5,3);
         vault = new Geometry("Vault", door);
         vaultNode.attachChild(vault);
-        
-        
         Material mat=new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         RigidBodyControl vault_phy=new RigidBodyControl(5);
         vault.addControl(vault_phy);
         vault.getControl(RigidBodyControl.class).setKinematic(true);
-        
         bulletAppState.getPhysicsSpace().add(vault_phy);
         mat.setColor("Color", ColorRGBA.Brown);
         vault.setMaterial(mat);
@@ -1102,17 +996,12 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         vaultNode.setLocalTranslation(54,3,-112);
         rootNode.attachChild(vaultNode);
     }
-    
+    //method that sets tha camera to follow Othello
     private void setupChaseCamera() {
         flyCam.setEnabled(false);
-        //cam - the application camera
-        //target - the spatial to follow
-        //inputManager - the inputManager of the application to register inputs
         chaseCam = new ChaseCamera(cam, model, inputManager);
-        //chaseCam.setChasingSensitivity(10f);
-        //chaseCam.setTrailingSensitivity(0.05f);
     }
-    
+    //method setupKeys sets all the mappings and listeners.
     private void setupKeys() {
         inputManager.addMapping("CharLeft", new KeyTrigger(KeyInput.KEY_A));
         inputManager.addMapping("CharRight", new KeyTrigger(KeyInput.KEY_D));
@@ -1123,13 +1012,9 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         inputManager.addMapping("Char2", new KeyTrigger(KeyInput.KEY_2));
         inputManager.addMapping("CharThree", new KeyTrigger(KeyInput.KEY_3));
         inputManager.addMapping("fireOn", new KeyTrigger(KeyInput.KEY_F));
-        //inputManager.addMapping("fireOff", new KeyTrigger(KeyInput.KEY_F));
         inputManager.addMapping("rotateDoor", new KeyTrigger(KeyInput.KEY_R));
-        //inputManager.addMapping("Key", new KeyTrigger(KeyInput.KEY_K));
-        //inputManager.addMapping("CharB", new KeyTrigger(KeyInput.KEY_B));
         inputManager.addMapping("Shoot", new MouseButtonTrigger(mouseInput.BUTTON_LEFT));
         inputManager.addMapping("bananas", new KeyTrigger(KeyInput.KEY_B));
-        //inputManager.addMapping("Char1", new KeyTrigger(KeyInput.KEY_1));
         inputManager.addMapping("CharEat", new KeyTrigger(KeyInput.KEY_E));
         
         inputManager.addListener(this, "CharLeft");
@@ -1150,7 +1035,8 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         inputManager.addListener(this, "CharEat");
     }
     
-    
+    //method that runs when the User presses one of coresponding keys in the keyboard
+    //or the left mouse button. 
     public void onAction(String binding, boolean value, float tpf) {
         if (binding.equals("CharLeft")) {
             if (value) {
@@ -1179,7 +1065,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         } else if (binding.equals("CharSpace")) {
             character.jump();
         }
-        
+        //options that are displayed from Iago if Othello is inside the area of visibility
        else if (binding.equals("Char1") && !value==true) {
              if (character.getPhysicsLocation().distance(vendor.getPhysicsLocation())<10 && (Math.acos(vis2)*FastMath.RAD_TO_DEG)<60){
                  if(torch==false){
@@ -1192,13 +1078,13 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
                      }
                      else
                        hudTextVendor.setText("You need 40 credits to buy a torch");
-                       // System.out.println("You need 40 credits to buy a torch");
                  }
                  else
-                    // System.out.println("You have already purchased a torch");
                       hudTextVendor.setText("You have already purchased a torch");
                  
-             }else if (character.getPhysicsLocation().distance(cassio.getPhysicsLocation())<10 && (Math.acos(vis3)*FastMath.RAD_TO_DEG)<60){
+             }
+             //or to purchase bananas from Cassio.
+             else if (character.getPhysicsLocation().distance(cassio.getPhysicsLocation())<10 && (Math.acos(vis3)*FastMath.RAD_TO_DEG)<60){
    
                      if(credit>=10){
                          
@@ -1213,7 +1099,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
 
             }
        }
-            
+            //listener to set the torch on or off.
             else if (binding.equals("fireOn") && !value==true) {
             if (torch==true){
                 if (fireon==false){
@@ -1243,7 +1129,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
            
  
         }
-        
+        //listener to purchase the key from Iago
         else if (binding.equals("Char2") && !value==true) {
              if (character.getPhysicsLocation().distance(vendor.getPhysicsLocation())<10 && (Math.acos(vis2)*FastMath.RAD_TO_DEG)<60){
                  if (key==false){
@@ -1260,6 +1146,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
                  else
                      hudTextVendor.setText("You already have the key");
                  }
+             //or to buy cannonballs from Cassio.
              else if (character.getPhysicsLocation().distance(cassio.getPhysicsLocation())<10 && (Math.acos(vis3)*FastMath.RAD_TO_DEG)<60){
                  
                      if(credit>=20){
@@ -1276,6 +1163,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
              }
  
         }
+        //listener that triggers when the User shoots.
         else if (binding.equals("Shoot") && !value==true){
                  
             if(cannonballs!=0){
@@ -1284,55 +1172,30 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
                 if (results2.size() > 0) {      
           closest2 = results2.getClosestCollision();
           float dist1 = closest2.getDistance();
-
+          
+          //create a flare in the position of the mine and set the text to Mine has been diffuse.
           if(dist1<100 && dist1>10){
-                  //ex.removeFromParent();
-           // }
-                  
-               
-                //System.out.println("Mine destroyed");
                 createExplosion();
                 explosives.detachChild(closest2.getGeometry());
-                hudTextinfo.setText("Mine has been disarmed");
+                hudTextinfo.setText("Mine has been diffuse");
                 createExplMineImg();
-               
-//            Box guiBoxRed = new Box(new Vector3f(0f,0f,0f),1,1,1);
-//            Geometry geoGuiBoxRed=new Geometry("Inventory Cube",guiBoxRed);
-//            Material matRed = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-//            matRed.setColor("Color", ColorRGBA.Red);
-//            geoGuiBoxRed.setMaterial(matRed);
-//
-//             guiNode.attachChild(geoGuiBoxRed);
-//             geoGuiBoxRed.setLocalScale(10);
-//             geoGuiBoxRed.setLocalTranslation(settings.getWidth()-60,displacement2,0);
-//             displacement2+=30;
-//             if (displacement>=settings.getHeight()){
-//                 displacement=30;
-//                 //column=40;
-//             }
-             
-             credit+=10;
-             explosiveMines++;
-            
-             //stamina-=1000;
-             //System.out.println("Credits: "+credits);
-          }else hudTextinfo.setText("");
+                credit+=10;
+                explosiveMines++;
+          }else 
+              hudTextinfo.setText("");
 
                 }
-              
-                cannonballs--;   
+              cannonballs--;   
                
           
        
              
-            
+                //code for the creation of the cannonballs.
                 Sphere bullet=new Sphere(32,32,0.2f,true,false);
                 Geometry bulletg = new Geometry("bullet", bullet);
                  Material matBullet = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
                 bulletg.setMaterial(matBullet);
-               // bulletg.setShadowMode(RenderQueue.ShadowMode.CastAndReceive);
                 bulletg.setLocalTranslation(character.getPhysicsLocation().add(.5f,0,0));
-               // RigidBodyControl bulletNode = new BombControl(assetManager, bulletCollisionShape, 1);
                 SphereCollisionShape bulletCollisionShape = new SphereCollisionShape(0.75f);
                 RigidBodyControl bulletNode = new RigidBodyControl(bulletCollisionShape, 1);
                 bulletNode.setLinearVelocity(character.getViewDirection().mult(25));
@@ -1347,31 +1210,18 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
             }
          }
         
-        else if (binding.equals("CharDodge") && !value==true){
-            animationChannel.setAnim("Dodge",0.05f);
-        }
-        
-        else if (binding.equals("bananas") && !value==true){
+        //listener to give a banana to the monkey
+         else if (binding.equals("bananas") && !value==true){
             if(bananas!=0){
                  if(monkeyOnMe==true){
                      hudTextMonkey.setText("Yum Yum!");
-                     //System.out.println("You have given monkey a banana");
                      bananas--;
-                     //System.out.println("You now have "+bananas+ "bananas");
                      hudTextinfo.setText("Now you have "+bananas+ "bananas");
-                   //  pursuit=false;
                      MonEating=true;
-                 }  
-                     
-                     
-                  //   animationChannel3.setAnim("Walk");
-                  //   motionControl1.play();
-                     
-                    
- 
+                 }
             }
-           
-        }
+         }
+         //listener to buy food.
          else if (binding.equals("CharThree") && !value==true) {
              if (character.getPhysicsLocation().distance(vendor.getPhysicsLocation())<10 && (Math.acos(vis2)*FastMath.RAD_TO_DEG)<60){
                  
@@ -1388,236 +1238,21 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
                  }
                 
              }
+         //listener to consume the food.
          else if(binding.equals("CharEat") && !value==true){
                if(food!=0){
                 food--;
                 if(stamina+1000>5000){
-                           //  hudText1.setText("Food purchased!\nStamina increased by "+(10000-stamina));
                             stamina=5000;
                         }
                             
                         else{
-                            //hudText1.setText("Food purchased!\nStamina increased by 1000");
                             stamina+=1000;
                         }
                }
          }
         }
-    
-//    public void onAction(String binding, boolean value, float tpf){
-//        if (binding.equals("CharLeft")) {
-//            if (value) {
-//                left = true;
-//            } else {
-//                left = false;
-//            }
-//        } else if (binding.equals("CharRight")) {
-//            if (value) {
-//                right = true;
-//            } else {
-//                right = false;
-//            }
-//        }else if (binding.equals("CharUp")) {
-//            if (value) {
-//                up = true;
-//            } else {
-//                up = false;
-//            }
-//        } else if (binding.equals("CharDown")) {
-//            if (value) {
-//                down = true;
-//            } else {
-//                down = false;
-//            }
-//        } else if (binding.equals("CharSpace")) {
-//            character.jump();
-//        }
-//        
-//       else if (binding.equals("Char1") && !value==true) {
-//             if (character.getPhysicsLocation().distance(vendor.getPhysicsLocation())<10 && (Math.acos(vis2)*FastMath.RAD_TO_DEG)<60){
-//                 if(torch==false){
-//                     if(credit>=20){
-//                         
-//                         torch=true;
-//                        credit-=20;
-//                        hudText2.setText("Torch purchased!\nPress F to turn fire on/off");
-//
-//                     }
-//                     else
-//                       hudText2.setText("You need 40 credits to buy a torch");
-//                       // System.out.println("You need 40 credits to buy a torch");
-//                 }
-//                 else
-//                    // System.out.println("You have already purchased a torch");
-//                      hudText2.setText("You have already purchased a torch");
-//                 
-//             }
-//             
-//             else if (character.getPhysicsLocation().distance(cassio.getPhysicsLocation())<10 && (Math.acos(vis3)*FastMath.RAD_TO_DEG)<60){
-//   
-//                     if(credit>=10){
-//                         
-//                        credit-=10;
-//                        bananas+=10;
-//                        
-//                        hudText3.setText("10 Bananas purchased!");
-//                       
-//  
-//                     }
-//                     else
-//                        hudText3.setText("You need 10 credits\n  to buy bananas");
-//
-//            }
-//       }
-//        
-////        if (binding.equals("Char1") && torch == false && !value == true) {
-////            if(character.getPhysicsLocation().distance(vendor.getPhysicsLocation()) < 10 && (Math.acos(vis2)* FastMath.RAD_TO_DEG) < 60) {
-////                if(credit >= 30) {
-////                    torch = true;
-////                    hudText2.setText("Torch purchased");
-////                    credit -= 10;
-////                    //System.out.println("Torch purchased");
-////                }else if(torch == true) {
-////                    hudText2.setText("Torch alredy purchased!");
-////                    //System.out.println("Torch alredy purchased!");
-////                }else  {
-////                    hudText2.setText("Not enough credits!!");
-////                    //System.out.println("Not enough credits!!");
-////                }
-////            }  
-////        }
-//        
-//       else if (binding.equals("fireOn") && !value==true) {
-//            if (torch==true){
-//                if (fireon==false){
-//                    createFire();   
-//                    createTorch();
-//                    rootNode.addLight(pl);
-//                    fireon=true;
-//                }else{
-//                    model.detachChild(fire);
-//                    model.detachChild(teapot);
-//                    rootNode.removeLight(pl);
-//                    fireon=false;
-//                }
-//            
-//        }
-//            }
-//        
-//       else if (binding.equals("rotateDoor") && !value == true) {
-//            if (key == true) {
-//            vaultNode.rotate(0, 1.6f, 0);
-//                System.out.println("Door Opened!!!");
-//            }else {
-//                System.out.println("Key is required to open the door.");
-//            }
-//        }
-//        
-//       else if (binding.equals("Key") && !value == true) {
-//          if(character.getPhysicsLocation().distance(cassio.getPhysicsLocation()) < 10 && (Math.acos(vis3)* FastMath.RAD_TO_DEG) < 60) {
-//            if(mines >= 3 && key == false) {
-//                key = true;
-//                hudText3.setText("Key purchased");
-//                System.out.println("Key purchased");      
-//            }else if(key == true) {
-//                hudText3.setText("Key alrady purchased!");
-//                System.out.println("Key alrady purchased!");
-//            }else {
-//                hudText3.setText("Not enough mines collected for key");
-//                System.out.println("not enough mines collected for key.");
-//            }
-//            
-//        }
-//      }
-//       
-//       else if (binding.equals("Shoot") && !value == true) {
-//           if(cannonballs > 0) {
-//              //  shoot=true;
-//                if (results2.size() > 0) {      
-//          closest2 = results2.getClosestCollision();
-//          float dist1 = closest2.getDistance();
-//          
-//
-//          if(dist1<150 && dist1>10){
-//                System.out.println("Mine destroyed");
-//                createExplosion();
-//                explosives.detachChild(closest2.getGeometry());
-//                
-//            Box explosiveMineCollected = new Box(new Vector3f(0f,0f,0f),1,1,1);
-//            Geometry geoGuiBoxRed=new Geometry("Inventory Cube",explosiveMineCollected);
-//            Material matRed = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-//            matRed.setColor("Color", ColorRGBA.Red);
-//            geoGuiBoxRed.setMaterial(matRed);
-//
-//             guiNode.attachChild(geoGuiBoxRed);
-//             geoGuiBoxRed.setLocalScale(10);
-//             geoGuiBoxRed.setLocalTranslation(settings.getWidth()-40,displacement,0);
-//             displacement+=30;
-//             if (displacement>=settings.getHeight()){
-//                 displacement=10;
-//                 //column=40;
-//             }
-//             
-//             credit+=10;
-//             explosiveMines++;
-//             //stamina-=1000;
-//             System.out.println("Credits: " + credit);
-//          }
-//
-//          }
-//                
-//            }
-//        }
-//        
-//       else if (binding.equals("Char1") && !value == true) {
-//                 if(character.getPhysicsLocation().distance(cassio.getPhysicsLocation()) < 10 && (Math.acos(vis3)* FastMath.RAD_TO_DEG) < 60) {
-//                     if(credit >= 10){
-//                     hudText3.setText("you bought 10 bananas");
-//                     //System.out.println("you bought 10 bananas");
-//                     bananas += 10;
-//                     credit -= 10;
-//                         System.out.println(credit);
-//                     }else {
-//                         hudText3.setText("Sorry! you don't have enough credits.");
-//                         //System.out.println("Sorry! you don't have enough credits.");
-//                     }
-//                 }
-//              }
-//       else if(binding.equals("CharB") && !value == true) {
-//                if(character.getPhysicsLocation().distance(cassio.getPhysicsLocation()) < 10 && (Math.acos(vis3)* FastMath.RAD_TO_DEG) < 60) {
-//                    if(credit >= 10){
-//                        System.out.println("you bought 10 cannoballs");
-//                        credit -= 10;
-//                        cannonballs += 10;
-//                        System.out.println(credit);
-//                    }else {
-//                        System.out.println("Sorry! you don't have enough credits.");
-//                    }
-//                }
-//                
-//            }
-//            
-//           else if(binding.equals("bananas") && !value == true) {
-//                if(bananas > 0 && monkeyOnMe == true) {
-//                    bananas--;
-//                    MonEating = true;
-//                }else {
-//                    System.out.println("Monkey needs bananas and you dont have any.");
-//                }
-////                if(character.getPhysicsLocation().distance(cassio.getPhysicsLocation()) < 10 && (Math.acos(vis3)* FastMath.RAD_TO_DEG) < 60) {
-////                    if(credit >= 10){
-////                        System.out.println("you bought 10 cannoballs");
-////                        credit -= 10;
-////                        cannonballs += 10;
-////                        System.out.println(credit);
-////                    }else {
-////                        System.out.println("Sorry! you don't have enough credits.");
-////                    }
-////                }
-//                
-//            }
-//         }
-    
+    //Animation Controllers of Othello and NPC's
     private void setupAnimationController() {
         animationControl = model.getControl(AnimControl.class);
         animationControl.addListener(this);
@@ -1634,7 +1269,6 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
         animationControl4 = model4.getControl(AnimControl.class);
         animationControl4.addListener(this);
         animationChannel4 = animationControl4.createChannel();
-        //animationChannel4.setAnim("Idle");
     }
     
     public void onAnimChange(AnimControl control, AnimChannel channel, String animName) {
@@ -1647,6 +1281,36 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
             channel.setSpeed(1f);
         }
     }
+    
+    private void initAudio() {
+    /* gun shot sound is to be triggered by a mouse click. */
+    gun = new AudioNode(assetManager, "Sounds/Effects/gun2.wav", false);
+    gun.setPositional(false);
+    gun.setLooping(false);
+    gun.setVolume(0.5f);
+    rootNode.attachChild(gun);
+ 
+    /* nature sound - keeps playing in a loop. */
+    nature = new AudioNode(assetManager, "Sounds/Environment/forest.ogg", false);
+    nature.setLooping(true);  // activate continuous playing
+    nature.setPositional(true);   
+    nature.setVolume(3);
+    rootNode.attachChild(nature);
+    nature.play(); // play continuously!
+    
+    hello = new AudioNode(assetManager, "Sounds/Environment/hello.ogg", false);
+    hello.setLooping(false);
+    hello.setPositional(true);   
+    hello.setVolume(3);
+    rootNode.attachChild(hello);
+    
+    collect = new AudioNode(assetManager, "Sounds/Effects/Bang.wav", false);
+    collect.setLooping(false);
+    collect.setPositional(true);   
+    collect.setVolume(3);
+    rootNode.attachChild(collect);
+
+  }
     
     
 //    private void setupMotionPath() {
@@ -1688,88 +1352,7 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
 //            }
 //        });
 //    }
- 
-//    private void doCinematics() {
-//        cinematic = new Cinematic(rootNode, 40); // Cinematic duration
-//        stateManager.attach(cinematic);
-//        createCameraMotion();
-//
-//        // Camera Event
-//        cinematic.addCinematicEvent(1, cameraMotionEvent);
-//
-//        // Sound Event
-//        cinematic.addCinematicEvent(1, new SoundEvent("Sounds/Environment/Nature.ogg", LoopMode.Loop));
-//        cinematic.addCinematicEvent(5.1f, new SoundEvent("Sounds" + "/Effects/Beep.ogg", 1));
-//
-//        //Animation Event
-//        cinematic.addCinematicEvent(2, new AnimationEvent(model, "Walk", LoopMode.Loop));
-//
-//        //Camera Event
-//        //cinematic.activateCamera(4, "topView");
-//        cinematic.activateCamera(3, "aroundCam");
-//
-//        cinematic.addListener(new CinematicEventListener() {
-//            public void onPlay(CinematicEvent cinematic) {
-//                chaseCam.setEnabled(false);
-//                System.out.println("play");
-//            }
-//
-//            public void onPause(CinematicEvent cinematic) {
-//                System.out.println("pause");
-//            }
-//
-//            public void onStop(CinematicEvent cinematic) {
-//                chaseCam.setEnabled(true);
-//                //fade.setValue(1);
-//                System.out.println("stop");
-//            }
-//        });
-//        cinematic.play();
-//    }
-//
-//    private void createCameraMotion() {
-//        CameraNode camNode2 = cinematic.bindCamera("aroundCam", cam);
-//
-//        path = new MotionPath();
-//        path.setCycle(true);
-//            path.addWayPoint(new Vector3f(20, 3, 0));
-//            path.addWayPoint(new Vector3f(0, 3, 20));
-//            path.addWayPoint(new Vector3f(-20, 3, 0));
-//           path.addWayPoint(new Vector3f(0, 3, -20));
-////        path.addWayPoint(new Vector3f(90, 24, -90));
-////        path.addWayPoint(new Vector3f(0, 24, 90));
-////        path.addWayPoint(new Vector3f(-90, 24, 0));
-////        path.addWayPoint(new Vector3f(0, 24, -150));
-//
-//        path.setCurveTension(0.83f);
-//        cameraMotionEvent = new MotionEvent(camNode2, path);
-//        cameraMotionEvent.setLoopMode(LoopMode.Loop);
-//        //camNode2.lookAt(teapot.getWorldTranslation(), Vector3f.UNIT_Y);
-//        //cameraMotionEvent.setDirectionType(MotionEvent.Direction.LookAt);
-//   
-//    }
-    private void initAudio() {
-    /* gun shot sound is to be triggered by a mouse click. */
-    gun = new AudioNode(assetManager, "Sounds/Effects/gun2.wav", false);
-    gun.setPositional(false);
-    gun.setLooping(false);
-    gun.setVolume(0.5f);
-    rootNode.attachChild(gun);
- 
-    /* nature sound - keeps playing in a loop. */
-    nature = new AudioNode(assetManager, "Sounds/Environment/forest.ogg", false);
-    nature.setLooping(true);  // activate continuous playing
-    nature.setPositional(true);   
-    nature.setVolume(3);
-    rootNode.attachChild(nature);
-    nature.play(); // play continuously!
+    //method that creates all the audio in the game.
     
-    hello = new AudioNode(assetManager, "Sounds/Environment/hello.ogg", false);
-    hello.setLooping(false);
-    hello.setPositional(true);   
-    hello.setVolume(3);
-    rootNode.attachChild(hello);
-
-  }
     }
 
