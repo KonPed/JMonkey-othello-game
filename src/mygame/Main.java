@@ -1187,22 +1187,28 @@ public class Main extends SimpleApplication implements ActionListener,AnimEventL
                 }
               cannonballs--;   
                
-          
+          /////////////////////////////////////////////////
+          // attempt for the creation of the cannonballs.//
+          // cannonbals are not matched in the Othello's //
+          //                direction.                   //
+          //  uncomment to run the code below.           //
+          //                                             //
+          /////////////////////////////////////////////////
        
              
                 //code for the creation of the cannonballs.
-                Sphere bullet=new Sphere(32,32,0.2f,true,false);
-                Geometry bulletg = new Geometry("bullet", bullet);
-                 Material matBullet = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-                bulletg.setMaterial(matBullet);
-                bulletg.setLocalTranslation(character.getPhysicsLocation().add(.5f,0,0));
-                SphereCollisionShape bulletCollisionShape = new SphereCollisionShape(0.75f);
-                RigidBodyControl bulletNode = new RigidBodyControl(bulletCollisionShape, 1);
-                bulletNode.setLinearVelocity(character.getViewDirection().mult(25));
-                bulletNode.setPhysicsLocation(character.getViewDirection());
-                bulletg.addControl(bulletNode);
-                rootNode.attachChild(bulletg);
-                getPhysicsSpace().add(bulletNode);
+//                Sphere bullet=new Sphere(32,32,0.2f,true,false);
+//                Geometry bulletg = new Geometry("bullet", bullet);
+//                 Material matBullet = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+//                bulletg.setMaterial(matBullet);
+//                bulletg.setLocalTranslation(character.getPhysicsLocation().add(.5f,0,0));
+//                SphereCollisionShape bulletCollisionShape = new SphereCollisionShape(0.75f);
+//                RigidBodyControl bulletNode = new RigidBodyControl(bulletCollisionShape, 1);
+//                bulletNode.setLinearVelocity(character.getViewDirection().mult(25));
+//                bulletNode.setPhysicsLocation(character.getViewDirection());
+//                bulletg.addControl(bulletNode);
+//                rootNode.attachChild(bulletg);w
+//                getPhysicsSpace().add(bulletNode);
        
               
             } else {
